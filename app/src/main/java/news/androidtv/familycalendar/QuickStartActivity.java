@@ -327,7 +327,7 @@ public class QuickStartActivity extends Activity
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
-                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .setApplicationName("Family Calendar")
                     .build();
         }
 
