@@ -1,9 +1,7 @@
 package news.androidtv.familycalendar.tasks;
 
 import android.os.AsyncTask;
-import android.provider.CalendarContract;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
@@ -12,7 +10,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
 
 import java.io.IOException;
-import java.util.List;
+
+import news.androidtv.familycalendar.shims.Consumer;
 
 /**
  * Created by Nick on 10/28/2016.
@@ -23,6 +22,7 @@ public abstract class CalendarRequestTask<T> extends AsyncTask<Void, Void, T> {
     private Exception mLastError = null;
     private com.google.api.services.calendar.Calendar mService = null;
     private GoogleAccountCredential mCredential;
+    private Consumer<T> mPostConsumer;
 
     public CalendarRequestTask(GoogleAccountCredential credential) {
         mCredential = credential;
@@ -32,6 +32,10 @@ public abstract class CalendarRequestTask<T> extends AsyncTask<Void, Void, T> {
                 transport, jsonFactory, credential)
                 .setApplicationName("Family Calendar")
                 .build();
+    }
+
+    public void setPostConsumer(Consumer<T> doAfter) {
+        mPostConsumer = doAfter;
     }
 
     protected Calendar getCalendarService() {
@@ -67,39 +71,14 @@ public abstract class CalendarRequestTask<T> extends AsyncTask<Void, Void, T> {
 
     @Override
     protected void onPreExecute() {
-        /*mOutputText.setText("");
-        mProgress.show();*/
     }
 
     @Override
     protected void onPostExecute(T output) {
-        /*mProgress.hide();
-        if (output == null || output.size() == 0) {
-            mOutputText.setText("No results returned.");
-        } else {
-            output.add(0, "Data retrieved using the Google Calendar API:");
-            mOutputText.setText(TextUtils.join("\n", output));
-        }*/
+        mPostConsumer.consume(output);
     }
 
     @Override
     protected void onCancelled() {
-        /*mProgress.hide();
-        if (mLastError != null) {
-            if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                showGooglePlayServicesAvailabilityErrorDialog(
-                        ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                .getConnectionStatusCode());
-            } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                startActivityForResult(
-                        ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                        QuickStartActivity.REQUEST_AUTHORIZATION);
-            } else {
-                mOutputText.setText("The following error occurred:\n"
-                        + mLastError.getMessage());
-            }
-        } else {
-            mOutputText.setText("Request cancelled.");
-        }*/
     }
 }

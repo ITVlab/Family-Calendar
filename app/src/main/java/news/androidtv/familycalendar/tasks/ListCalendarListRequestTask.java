@@ -28,8 +28,8 @@ public class ListCalendarListRequestTask extends CalendarRequestTask<List<Calend
             Log.d(TAG, calendarListEntry.getSummary());
             List<Event> events = null;
             try {
-                events = new ListCalendarEventsRequestTask(getCredential(), calendarListEntry.getId()).execute().get();
-
+                events = new ListCalendarEventsRequestTask(getCredential(),
+                        calendarListEntry.getId()).execute().get();
                 Log.d(TAG, events.toString());
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();

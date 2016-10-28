@@ -1,9 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:weightSum="5"
+    android:paddingBottom="28dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <news.androidtv.familycalendar.views.MonthItemView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <!-- TODO Have some sort of cinemagraph in the BG per month -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="@color/colorAccentDark"
+        android:layout_height="60dp">
+        <TextView
+            style="@style/month_title"
+            android:text="January 2016" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        style="@style/tv_safe_horiz"
+        android:weightSum="7"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Sunday"
+            style="@style/calendar_dow"/>
+        <TextView
+            android:text="Monday"
+            style="@style/calendar_dow"/>
+        <TextView
+            android:text="Tuesday"
+            style="@style/calendar_dow"/>
+        <TextView
+            android:text="Wednesday"
+            style="@style/calendar_dow"/>
+        <TextView
+            android:text="Thursday"
+            style="@style/calendar_dow"/>
+        <TextView
+            android:text="Friday"
+            style="@style/calendar_dow"/>
+        <TextView
+            android:text="Saturday"
+            style="@style/calendar_dow"/>
+    </LinearLayout>
+    <include layout="@layout/month_view_row" />
+    <include layout="@layout/month_view_row" />
+    <include layout="@layout/month_view_row" />
+    <include layout="@layout/month_view_row" />
+    <include layout="@layout/month_view_row" />
 </LinearLayout>

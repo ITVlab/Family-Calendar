@@ -16,6 +16,7 @@ import android.widget.TextView;
 import java.util.Date;
 import java.util.jar.Manifest;
 
+@Deprecated
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int CALENDAR_REQUEST = 101;
