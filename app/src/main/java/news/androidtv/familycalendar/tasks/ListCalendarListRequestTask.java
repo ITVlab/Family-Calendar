@@ -13,8 +13,9 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by Nick on 10/28/2016.
  */
-
 public class ListCalendarListRequestTask extends CalendarRequestTask<List<CalendarListEntry>> {
+    private static final boolean DEBUG = false;
+
     public ListCalendarListRequestTask(GoogleAccountCredential credential) {
         super(credential);
     }
@@ -23,16 +24,16 @@ public class ListCalendarListRequestTask extends CalendarRequestTask<List<Calend
     protected List<CalendarListEntry> getDataFromApi() throws IOException {
         List<CalendarListEntry> calList =
                 getCalendarService().calendarList().list().execute().getItems();
-        Log.d(TAG, calList.toString());
+        if (DEBUG) {
+            Log.d(TAG, calList.toString());
+        }
         for (CalendarListEntry calendarListEntry : calList) {
-            Log.d(TAG, calendarListEntry.getSummary());
-            List<Event> events = null;
-            try {
-                events = new ListCalendarEventsRequestTask(getCredential(),
-                        calendarListEntry.getId()).execute().get();
-                Log.d(TAG, events.toString());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            List<Event> events = new ListCalendarEventsRequestTask(getCredential(),
+                    calendarListEntry.getId()).getDataFromApi();
+            if (DEBUG) {
+                Log.d(TAG, calendarListEntry.getSummary());
+                Log.d(TAG, calendarListEntry.getId());
+                Log.d(TAG, "Events: " + events.toString());
             }
         }
         return calList;

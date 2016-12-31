@@ -13,27 +13,24 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.felkertech.settingsmanager.SettingsManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.api.services.calendar.model.Event;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import news.androidtv.familycalendar.tasks.ListCalendarEventsRequestTask;
 import news.androidtv.familycalendar.tasks.ListCalendarListRequestTask;
+import news.androidtv.familycalendar.utils.SettingsConstants;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -124,6 +121,7 @@ public class QuickStartActivity extends Activity
         } else if (! isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
+            new SettingsManager(this).setBoolean(SettingsConstants.CALENDAR_AUTH_ENABLED, true);
             new ListCalendarListRequestTask(mCredential).execute();
         }
     }
