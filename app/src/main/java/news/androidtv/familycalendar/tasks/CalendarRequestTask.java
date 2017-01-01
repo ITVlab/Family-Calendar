@@ -1,6 +1,7 @@
 package news.androidtv.familycalendar.tasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -34,8 +35,9 @@ public abstract class CalendarRequestTask<T> extends AsyncTask<Void, Void, T> {
                 .build();
     }
 
-    public void setPostConsumer(Consumer<T> doAfter) {
+    public CalendarRequestTask<T> setPostConsumer(Consumer<T> doAfter) {
         mPostConsumer = doAfter;
+        return this;
     }
 
     protected Calendar getCalendarService() {
@@ -75,6 +77,7 @@ public abstract class CalendarRequestTask<T> extends AsyncTask<Void, Void, T> {
 
     @Override
     protected void onPostExecute(T output) {
+        Log.d(TAG, "Task finished");
         if (mPostConsumer != null) {
             mPostConsumer.consume(output);
         }

@@ -1,10 +1,9 @@
-package news.androidtv.familycalendar;
+package news.androidtv.familycalendar.activities;
 
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,100 +11,111 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.text.method.ScrollingMovementMethod;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.felkertech.settingsmanager.SettingsManager;
+import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.Event;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import news.androidtv.familycalendar.R;
+import news.androidtv.familycalendar.adapters.AgendaViewAdapter;
+import news.androidtv.familycalendar.shims.Consumer;
+import news.androidtv.familycalendar.tasks.ListCalendarEventsRequestTask;
 import news.androidtv.familycalendar.tasks.ListCalendarListRequestTask;
+import news.androidtv.familycalendar.utils.CalendarUtils;
+import news.androidtv.familycalendar.utils.EventComparator;
 import news.androidtv.familycalendar.utils.SettingsConstants;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class QuickStartActivity extends Activity
-        implements EasyPermissions.PermissionCallbacks {
-    private static final String TAG = QuickStartActivity.class.getSimpleName();
+import static news.androidtv.familycalendar.activities.QuickStartActivity.REQUEST_ACCOUNT_PICKER;
+import static news.androidtv.familycalendar.activities.QuickStartActivity.REQUEST_AUTHORIZATION;
+import static news.androidtv.familycalendar.activities.QuickStartActivity.REQUEST_GOOGLE_PLAY_SERVICES;
+import static news.androidtv.familycalendar.activities.QuickStartActivity.REQUEST_PERMISSION_GET_ACCOUNTS;
 
-    GoogleAccountCredential mCredential;
-    private TextView mOutputText;
-    private Button mCallApiButton;
-    ProgressDialog mProgress;
+/**
+ * Created by Nick on 12/31/2016.
+ *
+ * This is the main entry point for a user. If the user has not authenticated, they will be moved
+ * to the {@link QuickStartActivity}.
+ */
+public class MainLeanbackActivity extends Activity {
+    private static final String TAG = MainLeanbackActivity.class.getSimpleName();
 
-    static final int REQUEST_ACCOUNT_PICKER = 1000;
-    static final int REQUEST_AUTHORIZATION = 1001;
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
+    private GoogleAccountCredential mCredential;
+    private List<Event> mEventsList;
+    private SettingsManager mSettingsManager;
 
-    private static final String BUTTON_TEXT = "Call Google Calendar API";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
-
-    /**
-     * Create the main activity.
-     * @param savedInstanceState previously saved instance data.
-     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
-
-        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        mCallApiButton = new Button(this);
-        mCallApiButton.setText(BUTTON_TEXT);
-        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCallApiButton.setEnabled(false);
-                mOutputText.setText("");
-                getResultsFromApi();
-                mCallApiButton.setEnabled(true);
-            }
-        });
-        activityLayout.addView(mCallApiButton);
-
-        mOutputText = new TextView(this);
-        mOutputText.setLayoutParams(tlp);
-        mOutputText.setPadding(16, 16, 16, 16);
-        mOutputText.setVerticalScrollBarEnabled(true);
-        mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        mOutputText.setText(
-                "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
-        activityLayout.addView(mOutputText);
-
-        mProgress = new ProgressDialog(this);
-        mProgress.setMessage("Calling Google Calendar API ...");
-
-        setContentView(activityLayout);
-
-        // Initialize credentials and service object.
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
+        setContentView(R.layout.activity_main);
+        mEventsList = new ArrayList<>();
+        mSettingsManager = new SettingsManager(this);
+        mCredential = CalendarUtils.getCredential(this);
+/*        if (!mSettingsManager.getBoolean(SettingsConstants.CALENDAR_AUTH_ENABLED)) {
+            startActivity(new Intent(this, QuickStartActivity.class));
+        }*/
+        Log.d(TAG, prepare() + " < ");
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "Start getting calendar");
+    }
 
+    public void resyncEvents() {
+        new ListCalendarListRequestTask(mCredential).setPostConsumer(new Consumer<List<CalendarListEntry>>() {
+            @Override
+            public void consume(List<CalendarListEntry> item) {
+                // Get events from each and add
+                for (CalendarListEntry entry : item) {
+                    Log.d(TAG, "Pull events for " + entry);
+                    if (entry.isSelected()) {
+                        new ListCalendarEventsRequestTask(mCredential, entry.getId()).setPostConsumer(new Consumer<List<Event>>() {
+                            @Override
+                            public void consume(List<Event> item) {
+                                Log.d(TAG, "Adding events");
+                                mEventsList.addAll(item);
+                                redrawEvents();
+                            }
+                        })
+                        .execute();
+                    }
+                }
+            }
+        })
+        .execute();
+    }
 
+    /**
+     * Displays events in a list.
+     */
+    public void redrawEvents() {
+        // Sort all chronologically
+        Collections.sort(mEventsList, new EventComparator());
+        // Now put into layout. This layout may depend on user settings.
+        AgendaViewAdapter adapter = new AgendaViewAdapter(this, mEventsList);
+        RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
+        rv.setAdapter(adapter);
+    }
+
+    // Code copied from QuickStartActivity
     /**
      * Attempt to call the API, after verifying that all the preconditions are
      * satisfied. The preconditions are: Google Play Services installed, an
@@ -113,17 +123,29 @@ public class QuickStartActivity extends Activity
      * of the preconditions are not satisfied, the app will prompt the user as
      * appropriate.
      */
-    private void getResultsFromApi() {
+    void getResultsFromApi() {
         if (! isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (! isDeviceOnline()) {
-            mOutputText.setText("No network connection available.");
+            Toast.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
         } else {
-            new SettingsManager(this).setBoolean(SettingsConstants.CALENDAR_AUTH_ENABLED, true);
-            new ListCalendarListRequestTask(mCredential).execute();
+            resyncEvents();
         }
+    }
+
+    boolean prepare() {
+        if (! isGooglePlayServicesAvailable()) {
+            acquireGooglePlayServices();
+        } else if (mCredential.getSelectedAccountName() == null) {
+            chooseAccount();
+        } else if (! isDeviceOnline()) {
+            Toast.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
+        } else {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -137,12 +159,10 @@ public class QuickStartActivity extends Activity
      * is granted.
      */
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
-    private void chooseAccount() {
-        if (EasyPermissions.hasPermissions(
-                this, Manifest.permission.GET_ACCOUNTS)) {
-            String accountName = getPreferences(Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
-            if (accountName != null) {
+    void chooseAccount() {
+        if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
+            String accountName = mSettingsManager.getString(SettingsConstants.PREF_ACCOUNT_NAME);
+            if (accountName != null && !accountName.isEmpty()) {
                 mCredential.setSelectedAccountName(accountName);
                 getResultsFromApi();
             } else {
@@ -178,9 +198,8 @@ public class QuickStartActivity extends Activity
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    mOutputText.setText(
-                            "This app requires Google Play Services. Please install " +
-                                    "Google Play Services on your device and relaunch this app.");
+                    Toast.makeText(this, "This app requires Google Play Services. Please install " +
+                            "Google Play Services on your device and relaunch this app.", Toast.LENGTH_SHORT).show();
                 } else {
                     getResultsFromApi();
                 }
@@ -191,11 +210,7 @@ public class QuickStartActivity extends Activity
                     String accountName =
                             data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        SharedPreferences settings =
-                                getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
+                        mSettingsManager.setString(SettingsConstants.PREF_ACCOUNT_NAME, accountName);
                         mCredential.setSelectedAccountName(accountName);
                         getResultsFromApi();
                     }
@@ -224,30 +239,6 @@ public class QuickStartActivity extends Activity
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(
                 requestCode, permissions, grantResults, this);
-    }
-
-    /**
-     * Callback for when a permission is granted using the EasyPermissions
-     * library.
-     * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
-     */
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> list) {
-        // Do nothing.
-    }
-
-    /**
-     * Callback for when a permission is denied using the EasyPermissions
-     * library.
-     * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
-     */
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> list) {
-        // Do nothing.
     }
 
     /**
@@ -299,7 +290,7 @@ public class QuickStartActivity extends Activity
             final int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         Dialog dialog = apiAvailability.getErrorDialog(
-                QuickStartActivity.this,
+                MainLeanbackActivity.this,
                 connectionStatusCode,
                 REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
