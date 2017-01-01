@@ -33,6 +33,7 @@ import java.util.List;
 
 import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.adapters.AgendaViewAdapter;
+import news.androidtv.familycalendar.adapters.CalendarsAdapter;
 import news.androidtv.familycalendar.shims.Consumer;
 import news.androidtv.familycalendar.tasks.ListCalendarEventsMonthRequestTask;
 import news.androidtv.familycalendar.tasks.ListCalendarListRequestTask;
@@ -138,6 +139,12 @@ public class MainLeanbackActivity extends Activity {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
+
+        // Display each calendar so that we can toggle them later (and present some options).
+        CalendarsAdapter calendarsAdapter = new CalendarsAdapter(this, mCalendars);
+        RecyclerView nav = (RecyclerView) findViewById(R.id.calendars);
+        nav.setLayoutManager(new LinearLayoutManager(this));
+        nav.setAdapter(calendarsAdapter);
     }
 
     @Override
