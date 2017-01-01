@@ -26,11 +26,13 @@ import com.google.api.services.calendar.model.Event;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.adapters.AgendaViewAdapter;
 import news.androidtv.familycalendar.shims.Consumer;
+import news.androidtv.familycalendar.tasks.ListCalendarEventsMonthRequestTask;
 import news.androidtv.familycalendar.tasks.ListCalendarEventsRequestTask;
 import news.androidtv.familycalendar.tasks.ListCalendarListRequestTask;
 import news.androidtv.familycalendar.utils.CalendarUtils;
@@ -58,6 +60,10 @@ public class MainLeanbackActivity extends Activity {
     private SettingsManager mSettingsManager;
     private int focusedEvent = 0;
     private int focusedCalendar = 0;
+    private Date mFocusedMonth = new Date();
+    // TODO Update the header
+    // TODO Header colors
+    // TODO Calendar event colors
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,7 +81,7 @@ public class MainLeanbackActivity extends Activity {
         Log.d(TAG, "Start getting calendar");
     }
 
-    public void resyncEvents() {
+    public void resyncEvents(final Date month) {
         new ListCalendarListRequestTask(mCredential).setPostConsumer(new Consumer<List<CalendarListEntry>>() {
             @Override
             public void consume(List<CalendarListEntry> item) {
@@ -83,7 +89,8 @@ public class MainLeanbackActivity extends Activity {
                 for (final CalendarListEntry entry : item) {
                     Log.d(TAG, "Pull events for " + entry);
                     if (entry.isSelected()) {
-                        new ListCalendarEventsRequestTask(mCredential, entry.getId()).setPostConsumer(new Consumer<List<Event>>() {
+                        new ListCalendarEventsMonthRequestTask(mCredential, entry.getId(), month)
+                                .setPostConsumer(new Consumer<List<Event>>() {
                             @Override
                             public void consume(List<Event> item) {
                                 Log.d(TAG, "Adding events for " + entry.getSummary());
@@ -119,6 +126,7 @@ public class MainLeanbackActivity extends Activity {
         rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
                 getResources().getColor(R.color.colorAccent));
         Log.d(TAG, "Key press " + keyCode);
+        // TODO Jump months with L / R
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_DOWN:
                 if (findViewById(R.id.calendars).hasFocus()) {
@@ -180,7 +188,7 @@ public class MainLeanbackActivity extends Activity {
         } else if (! isDeviceOnline()) {
             Toast.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
         } else {
-            resyncEvents();
+            resyncEvents(mFocusedMonth);
         }
     }
 

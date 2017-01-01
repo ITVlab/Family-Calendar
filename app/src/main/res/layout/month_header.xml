@@ -5,5 +5,5 @@
     <!-- TODO Have some sort of cinemagraph in the BG per month -->
     <TextView
         style="@style/month_title"
-        android:text="January 2016" />
+        android:text="January 2017" />
 </LinearLayout>
