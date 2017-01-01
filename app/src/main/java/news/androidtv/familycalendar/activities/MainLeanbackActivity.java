@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.felkertech.settingsmanager.SettingsManager;
@@ -55,6 +56,8 @@ public class MainLeanbackActivity extends Activity {
     private GoogleAccountCredential mCredential;
     private List<Event> mEventsList;
     private SettingsManager mSettingsManager;
+    private int focusedEvent = 0;
+    private int focusedCalendar = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,6 +111,57 @@ public class MainLeanbackActivity extends Activity {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
+        rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
+                getResources().getColor(R.color.colorAccent));
+        Log.d(TAG, "Key press " + keyCode);
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if (findViewById(R.id.calendars).hasFocus()) {
+                    focusedCalendar++;
+                    if (focusedCalendar >= 0) {
+                        focusedCalendar = 0;
+                    }
+                } else {
+                    focusedEvent++;
+                    if (focusedEvent >= mEventsList.size()) {
+                        focusedEvent = mEventsList.size() - 1;
+                    }
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                if (findViewById(R.id.calendars).hasFocus()) {
+                    focusedCalendar--;
+                    if (focusedEvent < 0) {
+                        focusedCalendar = 0;
+                    }
+                } else {
+                    focusedEvent--;
+                    if (focusedEvent < 0) {
+                        focusedEvent = 0;
+                    }
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+                ((AgendaViewAdapter) rv.getAdapter()).displayPopup(focusedEvent);
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                // Open nav drawer
+                findViewById(R.id.calendars).requestFocus();
+                findViewById(R.id.calendars).setMinimumWidth(200);
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                findViewById(R.id.recycler).requestFocus();
+                findViewById(R.id.calendars).setMinimumWidth(60);
+                break;
+        }
+        rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
+                getResources().getColor(R.color.colorAccentDark));
+        return super.onKeyDown(keyCode, event);
     }
 
     // Code copied from QuickStartActivity

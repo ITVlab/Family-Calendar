@@ -34,6 +34,7 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
         Event event = getItemAt(position);
         ((TextView) holder.layout.findViewById(R.id.event_title)).setText(event.getSummary());
         ((TextView) holder.layout.findViewById(R.id.event_time)).setText(
