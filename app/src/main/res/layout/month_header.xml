@@ -1,0 +1,9 @@
+<LinearLayout android:layout_width="match_parent"
+    android:background="@color/colorAccentDark"
+    android:layout_height="60dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- TODO Have some sort of cinemagraph in the BG per month -->
+    <TextView
+        style="@style/month_title"
+        android:text="January 2016" />
+</LinearLayout>

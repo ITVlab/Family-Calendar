@@ -77,7 +77,6 @@ public abstract class CalendarRequestTask<T> extends AsyncTask<Void, Void, T> {
 
     @Override
     protected void onPostExecute(T output) {
-        Log.d(TAG, "Task finished");
         if (mPostConsumer != null) {
             mPostConsumer.consume(output);
         }

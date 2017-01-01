@@ -6,19 +6,17 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.felkertech.settingsmanager.SettingsManager;
-import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -26,9 +24,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import news.androidtv.familycalendar.R;
@@ -67,10 +63,7 @@ public class MainLeanbackActivity extends Activity {
         mEventsList = new ArrayList<>();
         mSettingsManager = new SettingsManager(this);
         mCredential = CalendarUtils.getCredential(this);
-/*        if (!mSettingsManager.getBoolean(SettingsConstants.CALENDAR_AUTH_ENABLED)) {
-            startActivity(new Intent(this, QuickStartActivity.class));
-        }*/
-        Log.d(TAG, prepare() + " < ");
+        prepare();
     }
 
     @Override
@@ -84,13 +77,13 @@ public class MainLeanbackActivity extends Activity {
             @Override
             public void consume(List<CalendarListEntry> item) {
                 // Get events from each and add
-                for (CalendarListEntry entry : item) {
+                for (final CalendarListEntry entry : item) {
                     Log.d(TAG, "Pull events for " + entry);
                     if (entry.isSelected()) {
                         new ListCalendarEventsRequestTask(mCredential, entry.getId()).setPostConsumer(new Consumer<List<Event>>() {
                             @Override
                             public void consume(List<Event> item) {
-                                Log.d(TAG, "Adding events");
+                                Log.d(TAG, "Adding events for " + entry.getSummary());
                                 mEventsList.addAll(item);
                                 redrawEvents();
                             }
@@ -108,10 +101,12 @@ public class MainLeanbackActivity extends Activity {
      */
     public void redrawEvents() {
         // Sort all chronologically
+        Log.d(TAG, "Draw " + mEventsList.size() + " items");
         Collections.sort(mEventsList, new EventComparator());
         // Now put into layout. This layout may depend on user settings.
         AgendaViewAdapter adapter = new AgendaViewAdapter(this, mEventsList);
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
+        rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
     }
 

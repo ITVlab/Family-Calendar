@@ -23,6 +23,6 @@ public class CalendarUtils {
     }
 
     public static String getEventStartEndAsString(Event event) {
-        return event.getStart().getDate().getValue() + " - " + event.getEnd().getDate().getValue();
+        return ""; // TODO Time start / end
     }
 }
