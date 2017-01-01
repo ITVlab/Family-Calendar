@@ -31,9 +31,13 @@ public class ListCalendarEventsMonthRequestTask extends CalendarRequestTask<List
     protected List<Event> getDataFromApi() throws IOException {
         Date start = mMonth;
         start.setDate(1);
+        start.setHours(0);
+        start.setMinutes(0);
         DateTime dateTime = new DateTime(mMonth);
         Date end = (Date) start.clone();
         end.setMonth(start.getMonth() + 1);
+        end.setHours(0);
+        end.setMinutes(0);
         DateTime nextMonth = new DateTime(end);
         Log.d(TAG, "Find events between " + dateTime.toString() + " and " + end.toString());
         return getCalendarService().events().list(mCalendarId)

@@ -118,7 +118,6 @@ public class MainLeanbackActivity extends Activity {
             public void consume(List<CalendarListEntry> item) {
                 // Get events from each and add
                 for (final CalendarListEntry entry : item) {
-                    Log.d(TAG, "Pull events for " + entry);
                     mCalendars.add(entry);
                     if (CalendarUtils.isCalendarSelected(entry, MainLeanbackActivity.this)) {
                         new ListCalendarEventsMonthRequestTask(mCredential, entry.getId(), month)
@@ -241,6 +240,7 @@ public class MainLeanbackActivity extends Activity {
             // Focus new item
             rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
                     getResources().getColor(MonthThemer.getSecondaryColor(mFocusedMonth.getMonth())));
+            rv.scrollToPosition(focusedEvent);
         }
         return super.onKeyDown(keyCode, event);
     }

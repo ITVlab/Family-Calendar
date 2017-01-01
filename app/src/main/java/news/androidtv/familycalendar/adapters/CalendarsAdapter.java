@@ -19,6 +19,7 @@ import java.util.List;
 
 import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.activities.MainLeanbackActivity;
+import news.androidtv.familycalendar.utils.CalendarUtils;
 import news.androidtv.familycalendar.utils.SettingsConstants;
 
 /**
@@ -111,11 +112,12 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
         switch (getItemViewType(position)) {
             case TYPE_CALENDAR:
                 final CalendarListEntry calendar = (CalendarListEntry) getItemAt(position, true);
+
                 ((TextView) holder.itemView.findViewById(R.id.calendar_title))
                         .setText(calendar.getSummary());
                 if (mDataList.get(position).getSelected() != null) {
                     ((CheckBox) holder.itemView.findViewById(R.id.calendar_selected))
-                            .setChecked(calendar.getSelected());
+                            .setChecked(CalendarUtils.isCalendarSelected(calendar, mContext));
                     holder.itemView.findViewById(R.id.calendar_selected)
                             .setOnClickListener(new View.OnClickListener() {
                                 @Override
