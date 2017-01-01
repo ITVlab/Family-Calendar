@@ -35,10 +35,10 @@ import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.adapters.AgendaViewAdapter;
 import news.androidtv.familycalendar.shims.Consumer;
 import news.androidtv.familycalendar.tasks.ListCalendarEventsMonthRequestTask;
-import news.androidtv.familycalendar.tasks.ListCalendarEventsRequestTask;
 import news.androidtv.familycalendar.tasks.ListCalendarListRequestTask;
 import news.androidtv.familycalendar.utils.CalendarUtils;
 import news.androidtv.familycalendar.utils.EventComparator;
+import news.androidtv.familycalendar.utils.MonthThemer;
 import news.androidtv.familycalendar.utils.SettingsConstants;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -58,6 +58,7 @@ public class MainLeanbackActivity extends Activity {
     private static final String TAG = MainLeanbackActivity.class.getSimpleName();
 
     private GoogleAccountCredential mCredential;
+    private List<CalendarListEntry> mCalendars;
     private List<Event> mEventsList;
     private SettingsManager mSettingsManager;
     private int focusedEvent = 0;
@@ -73,6 +74,7 @@ public class MainLeanbackActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mEventsList = new ArrayList<>();
+        mCalendars = new ArrayList<>();
         mSettingsManager = new SettingsManager(this);
         mCredential = CalendarUtils.getCredential(this);
         prepare();
@@ -85,13 +87,14 @@ public class MainLeanbackActivity extends Activity {
     }
 
     public void resyncEvents(final Date month) {
-        ((TextView) findViewById(R.id.month_header)).setText(new SimpleDateFormat("MMMM yyyy").format(month));
+        styleMonthHeader(month);
         new ListCalendarListRequestTask(mCredential).setPostConsumer(new Consumer<List<CalendarListEntry>>() {
             @Override
             public void consume(List<CalendarListEntry> item) {
                 // Get events from each and add
                 for (final CalendarListEntry entry : item) {
                     Log.d(TAG, "Pull events for " + entry);
+                    mCalendars.add(entry);
                     if (entry.isSelected()) {
                         new ListCalendarEventsMonthRequestTask(mCredential, entry.getId(), month)
                                 .setPostConsumer(new Consumer<List<Event>>() {
@@ -108,6 +111,19 @@ public class MainLeanbackActivity extends Activity {
             }
         })
         .execute();
+    }
+
+    /**
+     * Styles the header at the top based on the provided month.
+     * @param month The date object
+     */
+    public void styleMonthHeader(Date month) {
+        ((TextView) findViewById(R.id.month_title)).setText(new SimpleDateFormat("MMMM yyyy")
+                .format(month));
+        int backgroundColor = MonthThemer.getPrimaryColor(month.getMonth());
+        findViewById(R.id.month_header).setBackgroundColor(getResources().getColor(backgroundColor));
+        int navDrawerColor = MonthThemer.getSecondaryColor(month.getMonth());
+        findViewById(R.id.navigation).setBackgroundColor(getResources().getColor(navDrawerColor));
     }
 
     /**

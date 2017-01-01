@@ -26,14 +26,14 @@ public class ListCalendarListRequestTask extends CalendarRequestTask<List<Calend
                 getCalendarService().calendarList().list().execute().getItems();
         if (DEBUG) {
             Log.d(TAG, calList.toString());
-        }
-        for (CalendarListEntry calendarListEntry : calList) {
-            List<Event> events = new ListCalendarEventsRequestTask(getCredential(),
-                    calendarListEntry.getId()).getDataFromApi();
-            if (DEBUG) {
-                Log.d(TAG, calendarListEntry.getSummary());
-                Log.d(TAG, calendarListEntry.getId());
-                Log.d(TAG, "Events: " + events.toString());
+            for (CalendarListEntry calendarListEntry : calList) {
+                List<Event> events = new ListCalendarEventsRequestTask(getCredential(),
+                        calendarListEntry.getId()).getDataFromApi();
+                if (DEBUG) {
+                    Log.d(TAG, calendarListEntry.getSummary());
+                    Log.d(TAG, calendarListEntry.getId());
+                    Log.d(TAG, "Events: " + events.toString());
+                }
             }
         }
         return calList;
