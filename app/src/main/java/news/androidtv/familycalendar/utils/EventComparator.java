@@ -15,7 +15,7 @@ public class EventComparator implements Comparator<Event> {
 
     @Override
     public int compare(Event event, Event t1) {
-        return (int) (getStartingTimestamp(t1) - getStartingTimestamp(event));
+        return (int) (getStartingTimestamp(event) - getStartingTimestamp(t1));
     }
 
     private long getStartingTimestamp(Event event) {

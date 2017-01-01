@@ -39,5 +39,9 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
         ((TextView) holder.layout.findViewById(R.id.event_title)).setText(event.getSummary());
         ((TextView) holder.layout.findViewById(R.id.event_time)).setText(
                 CalendarUtils.getEventStartEndAsString(event));
+        if (event.getLocation() != null) {
+            ((TextView) holder.layout.findViewById(R.id.event_location)).setText(
+                    event.getLocation());
+        }
     }
 }

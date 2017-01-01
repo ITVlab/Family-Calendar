@@ -8,7 +8,9 @@ import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * Created by Nick on 10/28/2016.
@@ -23,6 +25,11 @@ public class CalendarUtils {
     }
 
     public static String getEventStartEndAsString(Event event) {
-        return ""; // TODO Time start / end
+        if (event.getStart().getDateTime() != null && event.getEnd().getDateTime() != null) {
+            return new SimpleDateFormat("MMM d     h:mma").format(new Date(event.getStart().getDateTime().getValue()))
+                    + " - " +
+                    new SimpleDateFormat("h:mma").format(new Date(event.getEnd().getDateTime().getValue()));
+        }
+        return "";
     }
 }

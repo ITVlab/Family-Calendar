@@ -15,6 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felkertech.settingsmanager.SettingsManager;
@@ -24,6 +25,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -64,6 +66,7 @@ public class MainLeanbackActivity extends Activity {
     // TODO Update the header
     // TODO Header colors
     // TODO Calendar event colors
+    // TODO Block view
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,6 +85,7 @@ public class MainLeanbackActivity extends Activity {
     }
 
     public void resyncEvents(final Date month) {
+        ((TextView) findViewById(R.id.month_header)).setText(new SimpleDateFormat("MMMM yyyy").format(month));
         new ListCalendarListRequestTask(mCredential).setPostConsumer(new Consumer<List<CalendarListEntry>>() {
             @Override
             public void consume(List<CalendarListEntry> item) {
