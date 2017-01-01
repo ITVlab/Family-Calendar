@@ -2,10 +2,12 @@ package news.androidtv.familycalendar.utils;
 
 import android.content.Context;
 
+import com.felkertech.settingsmanager.SettingsManager;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 
 import java.text.SimpleDateFormat;
@@ -26,10 +28,20 @@ public class CalendarUtils {
 
     public static String getEventStartEndAsString(Event event) {
         if (event.getStart().getDateTime() != null && event.getEnd().getDateTime() != null) {
-            return new SimpleDateFormat("MMM d     h:mma").format(new Date(event.getStart().getDateTime().getValue()))
+            return new SimpleDateFormat("MMM d     h:mma").format(
+                    new Date(event.getStart().getDateTime().getValue()))
                     + " - " +
-                    new SimpleDateFormat("h:mma").format(new Date(event.getEnd().getDateTime().getValue()));
+                    new SimpleDateFormat("h:mma").format(
+                            new Date(event.getEnd().getDateTime().getValue()));
         }
         return "";
     }
+
+    public static boolean isCalendarSelected(CalendarListEntry calendar, Context context) {
+        BetterSettingsManager settingsManager = new BetterSettingsManager(context);
+        String key =  SettingsConstants.CALENDAR_SELECTED(calendar.getId());
+        return (calendar.isSelected() && !settingsManager.hasKey(key))
+                || new SettingsManager(context).getBoolean(key);
+    }
 }
+

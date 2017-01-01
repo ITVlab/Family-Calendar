@@ -52,7 +52,11 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
             holder.layout.setBackgroundColor(getContext().getResources()
                     .getColor(MonthThemer.getPrimaryDarkColor(new Date(event.getStart()
                             .getDateTime().getValue()).getMonth())));
+        } else if (event.getStart().getDate() != null) {
+            holder.layout.setBackgroundColor(getContext().getResources()
+                    .getColor(MonthThemer.getPrimaryDarkColor(new Date(event.getStart()
+                            .getDate().getValue()).getMonth())));
         }
-        Log.d(TAG, event.toString());
+//        Log.d(TAG, event.toString());
     }
 }

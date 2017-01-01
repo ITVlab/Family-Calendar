@@ -4,17 +4,21 @@ import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +62,9 @@ import static news.androidtv.familycalendar.activities.QuickStartActivity.REQUES
 public class MainLeanbackActivity extends Activity {
     private static final String TAG = MainLeanbackActivity.class.getSimpleName();
 
+    public static final String ACTION_REDRAW = "news.androidtv.familycalendar.ACTION_REDRAW";
+    public static final String ACTION_RESYNC = "news.androidtv.familycalendar.ACTION_RESYNC";
+
     private GoogleAccountCredential mCredential;
     private List<CalendarListEntry> mCalendars;
     private List<Event> mEventsList;
@@ -65,17 +72,23 @@ public class MainLeanbackActivity extends Activity {
     private int focusedEvent = 0;
     private int focusedCalendar = 0;
     private Date mFocusedMonth = new Date();
-    // TODO Update the header
-    // TODO Header colors
-    // TODO Calendar event colors
+    private boolean mNavDrawerOpen;
     // TODO Block view
+    private BroadcastReceiver mUpdateUiReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(ACTION_RESYNC)) {
+                resyncEvents(mFocusedMonth);
+            } else if (intent.getAction().equals(ACTION_REDRAW)) {
+                redrawEvents();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mEventsList = new ArrayList<>();
-        mCalendars = new ArrayList<>();
         mSettingsManager = new SettingsManager(this);
         mCredential = CalendarUtils.getCredential(this);
         prepare();
@@ -85,10 +98,21 @@ public class MainLeanbackActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "Start getting calendar");
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mUpdateUiReceiver,
+                new IntentFilter(ACTION_RESYNC));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mUpdateUiReceiver);
     }
 
     public void resyncEvents(final Date month) {
         styleMonthHeader(month);
+        mEventsList = new ArrayList<>();
+        mCalendars = new ArrayList<>();
         new ListCalendarListRequestTask(mCredential).setPostConsumer(new Consumer<List<CalendarListEntry>>() {
             @Override
             public void consume(List<CalendarListEntry> item) {
@@ -96,12 +120,13 @@ public class MainLeanbackActivity extends Activity {
                 for (final CalendarListEntry entry : item) {
                     Log.d(TAG, "Pull events for " + entry);
                     mCalendars.add(entry);
-                    if (entry.isSelected()) {
+                    if (CalendarUtils.isCalendarSelected(entry, MainLeanbackActivity.this)) {
                         new ListCalendarEventsMonthRequestTask(mCredential, entry.getId(), month)
                                 .setPostConsumer(new Consumer<List<Event>>() {
                             @Override
                             public void consume(List<Event> item) {
-                                Log.d(TAG, "Adding events for " + entry.getSummary());
+                                Log.d(TAG, "Adding " + item.size() + " events for " +
+                                        entry.getSummary());
                                 mEventsList.addAll(item);
                                 redrawEvents();
                             }
@@ -139,27 +164,43 @@ public class MainLeanbackActivity extends Activity {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
+        rv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                closeNavDrawer();
+            }
+        });
 
         // Display each calendar so that we can toggle them later (and present some options).
         CalendarsAdapter calendarsAdapter = new CalendarsAdapter(this, mCalendars);
         RecyclerView nav = (RecyclerView) findViewById(R.id.calendars);
         nav.setLayoutManager(new LinearLayoutManager(this));
         nav.setAdapter(calendarsAdapter);
+        nav.setVisibility(View.GONE);
+        findViewById(R.id.navigation).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openNavDrawer();
+            }
+        });
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
-        rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
-                getResources().getColor(R.color.colorAccent));
+        if (!mNavDrawerOpen && rv.findViewHolderForAdapterPosition(focusedEvent) != null) {
+            // Unfocus current item
+            rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
+                    getResources().getColor(MonthThemer.getPrimaryDarkColor(mFocusedMonth.getMonth())));
+        }
         Log.d(TAG, "Key press " + keyCode);
         // TODO Jump months with L / R
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (findViewById(R.id.calendars).hasFocus()) {
+                if (mNavDrawerOpen) {
                     focusedCalendar++;
                     if (focusedCalendar >= 0) {
-                        focusedCalendar = 0;
+                        focusedCalendar = 0; // TODO Swap months
                     }
                 } else {
                     focusedEvent++;
@@ -169,7 +210,7 @@ public class MainLeanbackActivity extends Activity {
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
-                if (findViewById(R.id.calendars).hasFocus()) {
+                if (mNavDrawerOpen) {
                     focusedCalendar--;
                     if (focusedEvent < 0) {
                         focusedCalendar = 0;
@@ -185,18 +226,40 @@ public class MainLeanbackActivity extends Activity {
                 ((AgendaViewAdapter) rv.getAdapter()).displayPopup(focusedEvent);
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                // Open nav drawer
-                findViewById(R.id.calendars).requestFocus();
-                findViewById(R.id.calendars).setMinimumWidth(200);
+                openNavDrawer();
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                findViewById(R.id.recycler).requestFocus();
-                findViewById(R.id.calendars).setMinimumWidth(60);
+                closeNavDrawer();
                 break;
+            case KeyEvent.KEYCODE_BACK:
+                if (mNavDrawerOpen) {
+                    closeNavDrawer();
+                }
+                return true;
         }
-        rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
-                getResources().getColor(R.color.colorAccentDark));
+        if (!mNavDrawerOpen && rv.findViewHolderForAdapterPosition(focusedEvent) != null) {
+            // Focus new item
+            rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
+                    getResources().getColor(MonthThemer.getSecondaryColor(mFocusedMonth.getMonth())));
+        }
         return super.onKeyDown(keyCode, event);
+    }
+
+    void openNavDrawer() {
+        // Open nav drawer
+        mNavDrawerOpen = true;
+        focusedCalendar = 0;
+        findViewById(R.id.calendars).requestFocus();
+        findViewById(R.id.calendars).setMinimumWidth(200);
+        findViewById(R.id.calendars).setVisibility(View.VISIBLE);
+    }
+
+    void closeNavDrawer() {
+        mNavDrawerOpen = false;
+        focusedEvent = 0;
+        findViewById(R.id.recycler).requestFocus();
+        findViewById(R.id.calendars).setMinimumWidth(60);
+        findViewById(R.id.calendars).setVisibility(View.GONE);
     }
 
     // Code copied from QuickStartActivity

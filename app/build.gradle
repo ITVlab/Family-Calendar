@@ -46,5 +46,5 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
 
-    compile 'com.github.fleker:settingsmanager:1.3.5'
+    compile 'com.github.fleker:settingsmanager:1.3.+'
 }
