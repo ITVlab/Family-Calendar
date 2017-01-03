@@ -1,7 +1,7 @@
 # Family-Calendar
 A calendar that can be viewed by the whole family, on Android TV.
 
-**(Now Available to Download)[https://play.google.com/store/apps/details?id=news.androidtv.familycalendar]**
+**[Now Available to Download](https://play.google.com/store/apps/details?id=news.androidtv.familycalendar)**
 
 Families have plenty of schedules that need to be kept, but how do you keep track? Digital calendar software make it easy for us to manage this. How do we make it accessible to families?
 
