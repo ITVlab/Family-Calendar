@@ -59,7 +59,7 @@ import static news.androidtv.familycalendar.activities.QuickStartActivity.REQUES
  * This is the main entry point for a user. If the user has not authenticated, they will be moved
  * to the {@link QuickStartActivity}.
  */
-public class MainLeanbackActivity extends Activity {
+public class MainLeanbackActivity extends Activity implements EasyPermissions.PermissionCallbacks {
     private static final String TAG = MainLeanbackActivity.class.getSimpleName();
 
     public static final String ACTION_REDRAW = "news.androidtv.familycalendar.ACTION_REDRAW";
@@ -192,36 +192,39 @@ public class MainLeanbackActivity extends Activity {
             rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
                     getResources().getColor(MonthThemer.getPrimaryDarkColor(mFocusedMonth.getMonth())));
         }
-        Log.d(TAG, "Key press " + keyCode);
         // TODO Jump months with L / R
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_DOWN:
                 if (mNavDrawerOpen) {
                     focusedCalendar++;
                     if (focusedCalendar >= 0) {
-                        focusedCalendar = 0; // TODO Swap months
+
                     }
                 } else {
                     focusedEvent++;
                     if (focusedEvent >= mEventsList.size()) {
-                        focusedEvent = mEventsList.size() - 1;
+//                        focusedEvent = mEventsList.size() - 1;
+                        jumpToMonth(1);
                     }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
                 if (mNavDrawerOpen) {
                     focusedCalendar--;
-                    if (focusedEvent < 0) {
+                    if (focusedCalendar < 0) {
                         focusedCalendar = 0;
                     }
                 } else {
                     focusedEvent--;
                     if (focusedEvent < 0) {
-                        focusedEvent = 0;
+                        jumpToMonth(-1);
                     }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_BUTTON_A:
+            case KeyEvent.KEYCODE_A:
                 ((AgendaViewAdapter) rv.getAdapter()).displayPopup(focusedEvent);
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
@@ -229,6 +232,14 @@ public class MainLeanbackActivity extends Activity {
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
                 closeNavDrawer();
+                break;
+            case KeyEvent.KEYCODE_BUTTON_L1:
+            case KeyEvent.KEYCODE_L:
+                jumpToMonth(-1);
+                break;
+            case KeyEvent.KEYCODE_BUTTON_R1:
+            case KeyEvent.KEYCODE_R:
+                jumpToMonth(1);
                 break;
             case KeyEvent.KEYCODE_BACK:
                 if (mNavDrawerOpen) {
@@ -241,7 +252,10 @@ public class MainLeanbackActivity extends Activity {
             rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
                     getResources().getColor(MonthThemer.getSecondaryColor(mFocusedMonth.getMonth())));
             rv.scrollToPosition(focusedEvent);
+            ((LinearLayoutManager) rv.getLayoutManager()).scrollToPositionWithOffset(focusedEvent, 60);
+//            findViewById(R.id.calendar_view).scrollTo(rv.getScrollX(), rv.getScrollY());
         }
+        Log.d(TAG, "Key press " + keyCode + ", " + focusedEvent);
         return super.onKeyDown(keyCode, event);
     }
 
@@ -260,6 +274,11 @@ public class MainLeanbackActivity extends Activity {
         findViewById(R.id.recycler).requestFocus();
         findViewById(R.id.calendars).setMinimumWidth(60);
         findViewById(R.id.calendars).setVisibility(View.GONE);
+    }
+
+    void jumpToMonth(int offset) {
+        mFocusedMonth.setMonth(mFocusedMonth.getMonth() + offset);
+        resyncEvents(mFocusedMonth);
     }
 
     // Code copied from QuickStartActivity
@@ -441,5 +460,15 @@ public class MainLeanbackActivity extends Activity {
                 connectionStatusCode,
                 REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+
     }
 }
