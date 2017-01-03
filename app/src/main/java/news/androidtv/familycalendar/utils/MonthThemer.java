@@ -58,8 +58,8 @@ public class MonthThemer {
         mPrimaryDark.put(9, R.color.md_orange_800);
         mSecondary.put(9, R.color.md_red_600);
 
-        mPrimary.put(10, R.color.md_amber_600);
-        mPrimaryDark.put(10, R.color.md_amber_900);
+        mPrimary.put(10, R.color.md_amber_700);
+        mPrimaryDark.put(10, R.color.md_deep_orange_800);
         mSecondary.put(10, R.color.md_brown_600);
 
         mPrimary.put(11, R.color.md_blue_grey_600);
