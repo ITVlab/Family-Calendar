@@ -1,6 +1,7 @@
 package news.androidtv.familycalendar.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.felkertech.settingsmanager.SettingsManager;
 import com.google.api.client.auth.oauth2.Credential;
@@ -8,11 +9,17 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.Colors;
 import com.google.api.services.calendar.model.Event;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+
+import news.androidtv.familycalendar.tasks.CalendarRequestTask;
+
+import static com.google.android.gms.internal.zzs.TAG;
 
 /**
  * Created by Nick on 10/28/2016.
@@ -42,6 +49,22 @@ public class CalendarUtils {
         String key =  SettingsConstants.CALENDAR_SELECTED(calendar.getId());
         return (calendar.isSelected() && !settingsManager.hasKey(key))
                 || new SettingsManager(context).getBoolean(key);
+    }
+
+    public static void printColors(GoogleAccountCredential credential) throws IOException {
+        Log.d(TAG, String.valueOf(new ColorRequestTask(credential).getDataFromApi()));
+    }
+
+    private static class ColorRequestTask extends CalendarRequestTask<Colors> {
+
+        public ColorRequestTask(GoogleAccountCredential credential) {
+            super(credential);
+        }
+
+        @Override
+        protected Colors getDataFromApi() throws IOException {
+            return getCalendarService().colors().get().execute();
+        }
     }
 }
 

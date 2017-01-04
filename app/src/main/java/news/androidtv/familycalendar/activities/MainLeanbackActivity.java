@@ -29,6 +29,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,6 +94,16 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         mSettingsManager = new SettingsManager(this);
         mCredential = CalendarUtils.getCredential(this);
         prepare();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                    CalendarUtils.printColors(mCredential);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -304,7 +315,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
-        } else if (! isDeviceOnline()) {
+        } else if (!isDeviceOnline()) {
             Toast.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
         } else {
             return true;
