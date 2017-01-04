@@ -113,6 +113,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         styleMonthHeader(month);
         mEventsList = new ArrayList<>();
         mCalendars = new ArrayList<>();
+        // TODO Cache as many months and calendars and events as possible.
         new ListCalendarListRequestTask(mCredential).setPostConsumer(new Consumer<List<CalendarListEntry>>() {
             @Override
             public void consume(List<CalendarListEntry> item) {
@@ -126,6 +127,9 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                             public void consume(List<Event> item) {
                                 Log.d(TAG, "Adding " + item.size() + " events for " +
                                         entry.getSummary());
+                                Toast.makeText(MainLeanbackActivity.this,
+                                        "Adding " + item.size() + " events for " +
+                                        entry.getSummary(), Toast.LENGTH_SHORT).show();
                                 mEventsList.addAll(item);
                                 redrawEvents();
                             }
@@ -133,6 +137,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                         .execute();
                     }
                 }
+                redrawEvents(); // Redraw regardless
             }
         })
         .execute();
@@ -192,18 +197,15 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
                     getResources().getColor(MonthThemer.getPrimaryDarkColor(mFocusedMonth.getMonth())));
         }
-        // TODO Jump months with L / R
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_DOWN:
                 if (mNavDrawerOpen) {
                     focusedCalendar++;
                     if (focusedCalendar >= 0) {
-
                     }
                 } else {
                     focusedEvent++;
                     if (focusedEvent >= mEventsList.size()) {
-//                        focusedEvent = mEventsList.size() - 1;
                         jumpToMonth(1);
                     }
                 }
@@ -244,16 +246,16 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             case KeyEvent.KEYCODE_BACK:
                 if (mNavDrawerOpen) {
                     closeNavDrawer();
+                    return true;
                 }
-                return true;
         }
         if (!mNavDrawerOpen && rv.findViewHolderForAdapterPosition(focusedEvent) != null) {
             // Focus new item
             rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
                     getResources().getColor(MonthThemer.getSecondaryColor(mFocusedMonth.getMonth())));
             rv.scrollToPosition(focusedEvent);
-            ((LinearLayoutManager) rv.getLayoutManager()).scrollToPositionWithOffset(focusedEvent, 60);
-//            findViewById(R.id.calendar_view).scrollTo(rv.getScrollX(), rv.getScrollY());
+            ((LinearLayoutManager) rv.getLayoutManager())
+                    .scrollToPositionWithOffset(focusedEvent, 60);
         }
         Log.d(TAG, "Key press " + keyCode + ", " + focusedEvent);
         return super.onKeyDown(keyCode, event);

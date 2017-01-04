@@ -93,6 +93,9 @@ public abstract class AbstractEventAdapter extends
 
     public void displayPopup(int position) {
         Event event = getItemAt(position);
+        if (event == null) {
+            return;
+        }
         String summary = new StringBuilder()
                 .append(event.getDescription())
                 .append("\n\n")
