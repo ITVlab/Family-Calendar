@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 import news.androidtv.familycalendar.R;
+import news.androidtv.familycalendar.adapters.AbstractEventAdapter;
 import news.androidtv.familycalendar.adapters.AgendaViewAdapter;
 import news.androidtv.familycalendar.adapters.CalendarsAdapter;
 import news.androidtv.familycalendar.shims.Consumer;
@@ -117,6 +118,8 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         new ListCalendarListRequestTask(mCredential).setPostConsumer(new Consumer<List<CalendarListEntry>>() {
             @Override
             public void consume(List<CalendarListEntry> item) {
+                Toast.makeText(MainLeanbackActivity.this, "Found " + item.size() + " calendars",
+                        Toast.LENGTH_SHORT).show();
                 // Get events from each and add
                 for (final CalendarListEntry entry : item) {
                     mCalendars.add(entry);
@@ -164,7 +167,13 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         Log.d(TAG, "Draw " + mEventsList.size() + " items");
         Collections.sort(mEventsList, new EventComparator());
         // Now put into layout. This layout may depend on user settings.
-        AgendaViewAdapter adapter = new AgendaViewAdapter(this, mEventsList);
+        AgendaViewAdapter adapter = new AgendaViewAdapter(this, mEventsList,
+                new AbstractEventAdapter.EventHandler() {
+            @Override
+            public void onJumpToMonth(int offset) {
+                jumpToMonth(offset);
+            }
+        });
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
@@ -193,9 +202,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
         if (!mNavDrawerOpen && rv.findViewHolderForAdapterPosition(focusedEvent) != null) {
-            // Unfocus current item
-            rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
-                    getResources().getColor(MonthThemer.getPrimaryDarkColor(mFocusedMonth.getMonth())));
+            ((AbstractEventAdapter) rv.getAdapter()).unfocusPreviousSelectedElement(rv, mFocusedMonth);
         }
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_DOWN:
@@ -204,10 +211,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     if (focusedCalendar >= 0) {
                     }
                 } else {
-                    focusedEvent++;
-                    if (focusedEvent >= mEventsList.size()) {
-                        jumpToMonth(1);
-                    }
+                    ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
@@ -217,17 +221,14 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                         focusedCalendar = 0;
                     }
                 } else {
-                    focusedEvent--;
-                    if (focusedEvent < 0) {
-                        jumpToMonth(-1);
-                    }
+                    ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
             case KeyEvent.KEYCODE_A:
-                ((AgendaViewAdapter) rv.getAdapter()).displayPopup(focusedEvent);
+                ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
                 openNavDrawer();
@@ -249,13 +250,8 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     return true;
                 }
         }
-        if (!mNavDrawerOpen && rv.findViewHolderForAdapterPosition(focusedEvent) != null) {
-            // Focus new item
-            rv.findViewHolderForAdapterPosition(focusedEvent).itemView.setBackgroundColor(
-                    getResources().getColor(MonthThemer.getSecondaryColor(mFocusedMonth.getMonth())));
-            rv.scrollToPosition(focusedEvent);
-            ((LinearLayoutManager) rv.getLayoutManager())
-                    .scrollToPositionWithOffset(focusedEvent, 60);
+        if (!mNavDrawerOpen) {
+            ((AbstractEventAdapter) rv.getAdapter()).focusNewSelectedElement(rv, mFocusedMonth);
         }
         Log.d(TAG, "Key press " + keyCode + ", " + focusedEvent);
         return super.onKeyDown(keyCode, event);

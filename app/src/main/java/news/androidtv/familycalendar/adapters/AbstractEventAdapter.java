@@ -14,6 +14,7 @@ import com.felkertech.settingsmanager.SettingsManager;
 import com.google.api.services.calendar.model.Event;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,6 +29,7 @@ public abstract class AbstractEventAdapter extends
     private List<Event> mDataList;
     private List<View> mViews;
     private SettingsManager mSettingsManager;
+    private EventHandler mEventHandler;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -44,12 +46,14 @@ public abstract class AbstractEventAdapter extends
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public AbstractEventAdapter(final Activity activity, List<Event> dataSource) {
+    public AbstractEventAdapter(final Activity activity, List<Event> dataSource,
+            EventHandler eventHandler) {
         mContext = activity;
         mDataList = dataSource;
         mInflator = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mSettingsManager = new SettingsManager(mContext);
         mViews = new ArrayList<>();
+        mEventHandler = eventHandler;
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -113,5 +117,23 @@ public abstract class AbstractEventAdapter extends
                 .setTitle(event.getSummary())
                 .setMessage(summary)
                 .show();
+    }
+
+    protected List<Event> getDataList() {
+        return mDataList;
+    }
+
+    protected EventHandler getEventHandler() {
+        return mEventHandler;
+    }
+
+    public abstract void handleKeyEvent(int keyCode);
+
+    public abstract void focusNewSelectedElement(RecyclerView recyclerView, Date currentMonth);
+
+    public abstract void unfocusPreviousSelectedElement(RecyclerView recyclerView, Date currentMonth);
+
+    public interface EventHandler {
+        void onJumpToMonth(int offset);
     }
 }

@@ -1,7 +1,10 @@
 package news.androidtv.familycalendar.adapters;
 
 import android.app.Activity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,8 +26,10 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
     private static final String TAG = AgendaViewAdapter.class.getSimpleName();
     private static final boolean DEBUG = false;
 
-    public AgendaViewAdapter(Activity activity, List<Event> dataSource) {
-        super(activity, dataSource);
+    private int mIndex;
+
+    public AgendaViewAdapter(Activity activity, List<Event> dataSource, EventHandler eventHandler) {
+        super(activity, dataSource, eventHandler);
     }
 
     @Override
@@ -57,6 +62,52 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
                     .getColor(MonthThemer.getPrimaryDarkColor(new Date(event.getStart()
                             .getDate().getValue()).getMonth())));
         }
-//        Log.d(TAG, event.toString());
+    }
+
+    @Override
+    public void handleKeyEvent(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+                mIndex--;
+                if (mIndex < 0) {
+                    getEventHandler().onJumpToMonth(-1);
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                mIndex++;
+                if (mIndex >= getDataList().size()) {
+                    getEventHandler().onJumpToMonth(1);
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_BUTTON_A:
+            case KeyEvent.KEYCODE_A:
+                displayPopup(mIndex);
+                break;
+        }
+    }
+
+    @Override
+    public void focusNewSelectedElement(RecyclerView recyclerView, Date currentMonth) {
+        if (recyclerView.findViewHolderForAdapterPosition(mIndex) == null) {
+            return;
+        }
+        // Focus new item
+        recyclerView.findViewHolderForAdapterPosition(mIndex).itemView.setBackgroundColor(
+                getContext().getResources().getColor(MonthThemer.getSecondaryColor(currentMonth.getMonth())));
+        recyclerView.scrollToPosition(mIndex);
+        ((LinearLayoutManager) recyclerView.getLayoutManager())
+                .scrollToPositionWithOffset(mIndex, 60);
+    }
+
+    @Override
+    public void unfocusPreviousSelectedElement(RecyclerView recyclerView, Date currentMonth) {
+        if (recyclerView.findViewHolderForAdapterPosition(mIndex) == null) {
+            return;
+        }
+        // Unfocus current item
+        recyclerView.findViewHolderForAdapterPosition(mIndex).itemView.setBackgroundColor(
+            getContext().getResources().getColor(MonthThemer.getPrimaryDarkColor(currentMonth.getMonth())));
     }
 }
