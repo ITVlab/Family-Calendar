@@ -169,37 +169,42 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     public void redrawEvents() {
         // Sort all chronologically
         Log.d(TAG, "Draw " + mEventsList.size() + " items");
-        Collections.sort(mEventsList, new EventComparator());
-        // Now put into layout. This layout may depend on user settings.
-        AgendaViewAdapter adapter = new AgendaViewAdapter(this, mEventsList,
-                new AbstractEventAdapter.EventHandler() {
-            @Override
-            public void onJumpToMonth(int offset) {
-                jumpToMonth(offset);
-            }
-        });
-        RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setAdapter(adapter);
-        rv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                closeNavDrawer();
-            }
-        });
+        if (mEventsList.size() == 0) {
+            findViewById(R.id.no_events).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.no_events).setVisibility(View.GONE);
+            Collections.sort(mEventsList, new EventComparator());
+            // Now put into layout. This layout may depend on user settings.
+            AgendaViewAdapter adapter = new AgendaViewAdapter(this, mEventsList,
+                    new AbstractEventAdapter.EventHandler() {
+                        @Override
+                        public void onJumpToMonth(int offset) {
+                            jumpToMonth(offset);
+                        }
+                    });
+            RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
+            rv.setLayoutManager(new LinearLayoutManager(this));
+            rv.setAdapter(adapter);
+            rv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    closeNavDrawer();
+                }
+            });
 
-        // Display each calendar so that we can toggle them later (and present some options).
-        CalendarsAdapter calendarsAdapter = new CalendarsAdapter(this, mCalendars);
-        RecyclerView nav = (RecyclerView) findViewById(R.id.calendars);
-        nav.setLayoutManager(new LinearLayoutManager(this));
-        nav.setAdapter(calendarsAdapter);
-        nav.setVisibility(View.GONE);
-        findViewById(R.id.navigation).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openNavDrawer();
-            }
-        });
+            // Display each calendar so that we can toggle them later (and present some options).
+            CalendarsAdapter calendarsAdapter = new CalendarsAdapter(this, mCalendars);
+            RecyclerView nav = (RecyclerView) findViewById(R.id.calendars);
+            nav.setLayoutManager(new LinearLayoutManager(this));
+            nav.setAdapter(calendarsAdapter);
+            nav.setVisibility(View.GONE);
+            findViewById(R.id.navigation).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openNavDrawer();
+                }
+            });
+        }
     }
 
     @Override
