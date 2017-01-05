@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.felkertech.settingsmanager.SettingsManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -29,6 +30,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 
+import io.fabric.sdk.android.Fabric;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -74,7 +76,6 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     private int focusedCalendar = 0;
     private Date mFocusedMonth = new Date();
     private boolean mNavDrawerOpen;
-    // TODO Block view
     private BroadcastReceiver mUpdateUiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -89,6 +90,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         mSettingsManager = new SettingsManager(this);
         mCredential = CalendarUtils.getCredential(this);
@@ -130,11 +132,13 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                             public void consume(List<Event> item) {
                                 Log.d(TAG, "Adding " + item.size() + " events for " +
                                         entry.getSummary());
-                                Toast.makeText(MainLeanbackActivity.this,
-                                        "Adding " + item.size() + " events for " +
-                                        entry.getSummary(), Toast.LENGTH_SHORT).show();
-                                mEventsList.addAll(item);
-                                redrawEvents();
+                                if (item.size() > 0) {
+                                    Toast.makeText(MainLeanbackActivity.this,
+                                            "Adding " + item.size() + " events for " +
+                                                    entry.getSummary(), Toast.LENGTH_SHORT).show();
+                                    mEventsList.addAll(item);
+                                    redrawEvents();
+                                }
                             }
                         })
                         .execute();

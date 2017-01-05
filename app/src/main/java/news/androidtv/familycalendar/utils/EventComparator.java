@@ -15,6 +15,8 @@ public class EventComparator implements Comparator<Event> {
 
     @Override
     public int compare(Event event, Event t1) {
+//        Log.d(TAG, event.getStart().toString() + "< " + getStartingTimestamp(event));
+//        Log.d(TAG, t1.getStart().toString() + "<< " + getStartingTimestamp(t1));
         return (int) (getStartingTimestamp(event) - getStartingTimestamp(t1));
     }
 
