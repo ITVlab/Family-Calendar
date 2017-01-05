@@ -71,7 +71,6 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     private List<CalendarListEntry> mCalendars;
     private List<Event> mEventsList;
     private SettingsManager mSettingsManager;
-    private int focusedEvent = 0;
     private int focusedCalendar = 0;
     private Date mFocusedMonth = new Date();
     private boolean mNavDrawerOpen;
@@ -212,7 +211,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
-        if (!mNavDrawerOpen && rv.findViewHolderForAdapterPosition(focusedEvent) != null) {
+        if (!mNavDrawerOpen) {
             ((AbstractEventAdapter) rv.getAdapter()).unfocusPreviousSelectedElement(rv, mFocusedMonth);
         }
         switch (keyCode) {
@@ -264,7 +263,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         if (!mNavDrawerOpen) {
             ((AbstractEventAdapter) rv.getAdapter()).focusNewSelectedElement(rv, mFocusedMonth);
         }
-        Log.d(TAG, "Key press " + keyCode + ", " + focusedEvent);
+        Log.d(TAG, "Key press " + keyCode);
         return super.onKeyDown(keyCode, event);
     }
 
@@ -279,7 +278,6 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
 
     void closeNavDrawer() {
         mNavDrawerOpen = false;
-        focusedEvent = 0;
         findViewById(R.id.recycler).requestFocus();
         findViewById(R.id.calendars).setMinimumWidth(60);
         findViewById(R.id.calendars).setVisibility(View.GONE);
