@@ -8,9 +8,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.felkertech.settingsmanager.SettingsManager;
 import com.google.api.services.calendar.model.CalendarListEntry;
@@ -61,7 +63,6 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
         mSettingsManager = new SettingsManager(mContext);
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         if(mDataList == null) {
@@ -71,15 +72,21 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
     }
     @Override
     public int getItemViewType(int pos) {
-        return 0;
+        if (pos == 0) {
+            return TYPE_OPTION;
+        }
+        return TYPE_CALENDAR;
     }
 
-    public CalendarListEntry getItemAt(int pos) {
+    public CalendarListEntry getCalendar(int pos) {
         return mDataList.get(pos);
     }
 
-    public Object getItemAt(int pos, boolean allOptions) {
-        return getItemAt(pos);
+    public Object getItemAt(int pos) {
+        if (pos == 0) {
+            return null;
+        }
+        return getCalendar(pos - 1);
     }
 
     public SettingsManager getSettingsManager() {
@@ -100,6 +107,10 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
         switch (viewType) {
             case TYPE_CALENDAR:
                 layout = (LinearLayout) mInflator.inflate(R.layout.calendar_entry, parent, false);
+                break;
+            case TYPE_OPTION:
+                layout = (LinearLayout) mInflator.inflate(R.layout.button, parent, false);
+                break;
         }
         if (layout != null) {
             return new ViewHolder(layout, viewType);
@@ -111,7 +122,7 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         switch (getItemViewType(position)) {
             case TYPE_CALENDAR:
-                final CalendarListEntry calendar = (CalendarListEntry) getItemAt(position, true);
+                final CalendarListEntry calendar = (CalendarListEntry) getItemAt(position);
 
                 ((TextView) holder.itemView.findViewById(R.id.calendar_title))
                         .setText(calendar.getSummary());
@@ -131,6 +142,17 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
                                             new Intent(MainLeanbackActivity.ACTION_RESYNC));
                                 }
                             });
+                }
+                break;
+            case TYPE_OPTION:
+                if (position == 0) {
+                    ((Button) holder.itemView.findViewById(R.id.button)).setText("Settings");
+                    holder.itemView.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Toast.makeText(mContext, "No settings currently", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
                 break;
         }
