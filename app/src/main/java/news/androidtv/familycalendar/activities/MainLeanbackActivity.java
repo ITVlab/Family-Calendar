@@ -93,16 +93,6 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         mSettingsManager = new SettingsManager(this);
         mCredential = CalendarUtils.getCredential(this);
         prepare();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                    CalendarUtils.printColors(mCredential);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     @Override
