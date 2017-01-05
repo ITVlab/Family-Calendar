@@ -15,13 +15,13 @@ import java.util.Date;
 import java.util.List;
 
 import news.androidtv.familycalendar.R;
+import news.androidtv.familycalendar.model.CalendarColorMap;
 import news.androidtv.familycalendar.utils.CalendarUtils;
 import news.androidtv.familycalendar.utils.MonthThemer;
 
 /**
  * Created by Nick on 12/31/2016.
  */
-
 public class AgendaViewAdapter extends AbstractEventAdapter {
     private static final String TAG = AgendaViewAdapter.class.getSimpleName();
     private static final boolean DEBUG = false;
@@ -53,6 +53,8 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
         }
         if (event.getColorId() != null) {
             Log.d(TAG, "Color: " + event.getColorId());
+            holder.layout.setBackgroundColor(getContext().getResources()
+                    .getColor(CalendarColorMap.getColors(event.getColorId()).background));
         } else if (event.getStart().getDateTime() != null) {
             holder.layout.setBackgroundColor(getContext().getResources()
                     .getColor(MonthThemer.getPrimaryDarkColor(new Date(event.getStart()
@@ -107,7 +109,10 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
             return;
         }
         // Unfocus current item
+        int originalColor = getItemAt(mIndex).getColorId() == null ?
+                MonthThemer.getPrimaryDarkColor(currentMonth.getMonth()) :
+                CalendarColorMap.getColors(getItemAt(mIndex).getColorId()).background;
         recyclerView.findViewHolderForAdapterPosition(mIndex).itemView.setBackgroundColor(
-            getContext().getResources().getColor(MonthThemer.getPrimaryDarkColor(currentMonth.getMonth())));
+            getContext().getResources().getColor(originalColor));
     }
 }
