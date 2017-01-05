@@ -12,14 +12,23 @@ import android.icu.util.Calendar;
 public class CalendarColor {
     public final int foreground;
     public final int background;
+    public final int backgroundSecondary;
 
-    public CalendarColor(int fore, int back) {
+    public CalendarColor(int fore, int back, int backSecondary) {
         foreground = fore;
         background = back;
+        backgroundSecondary = backSecondary;
     }
 
     public CalendarColor(String fore, String back) {
         foreground = Color.parseColor(fore);
         background = Color.parseColor(back);
+        backgroundSecondary = Color.parseColor(back);
+    }
+
+    public CalendarColor(String fore, String back, String backSecondary) {
+        foreground = Color.parseColor(fore);
+        background = Color.parseColor(back);
+        backgroundSecondary = Color.parseColor(backSecondary);
     }
 }
