@@ -24,7 +24,7 @@ android {
     buildToolsVersion "24.0.2"
     defaultConfig {
         applicationId "news.androidtv.familycalendar"
-        minSdkVersion 15
+        minSdkVersion 17
         targetSdkVersion 25
         versionCode 4
         versionName "1.0.3"
@@ -60,6 +60,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:design:25.1.0'
+    compile 'com.android.support:preference-leanback-v17:25.1.0'
 
     testCompile 'junit:junit:4.12'
 

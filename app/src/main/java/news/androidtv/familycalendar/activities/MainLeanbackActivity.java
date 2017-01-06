@@ -106,6 +106,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mUpdateUiReceiver,
                 new IntentFilter(ACTION_RESYNC));
+        redrawEvents();
     }
 
     @Override
@@ -177,16 +178,26 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             findViewById(R.id.no_events).setVisibility(View.GONE);
             Collections.sort(mEventsList, new EventComparator());
             // Now put into layout. This layout may depend on user settings.
-            AbstractEventAdapter adapter = new MonthViewAdapter(this, mEventsList,
-                    new AbstractEventAdapter.EventHandler() {
-                        @Override
-                        public void onJumpToMonth(int offset) {
-                            jumpToMonth(offset);
-                        }
-                    });
             RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
-//            rv.setLayoutManager(new LinearLayoutManager(this));
-            rv.setLayoutManager(new GridLayoutManager(this, 7));
+            AbstractEventAdapter adapter;
+            if (new SettingsManager(this).getBoolean("MONTH_VIEW")) {
+                adapter = new MonthViewAdapter(this, mEventsList,
+                        new AbstractEventAdapter.EventHandler() {
+                            @Override
+                            public void onJumpToMonth(int offset) {
+                                jumpToMonth(offset);
+                            }
+                        });
+                rv.setLayoutManager(new GridLayoutManager(this, 7));
+            } else {
+                adapter = new AgendaViewAdapter(this, mEventsList, new AbstractEventAdapter.EventHandler() {
+                    @Override
+                    public void onJumpToMonth(int offset) {
+                        jumpToMonth((offset));
+                    }
+                });
+                rv.setLayoutManager(new LinearLayoutManager(this));
+            }
             rv.setAdapter(adapter);
             rv.setOnClickListener(new View.OnClickListener() {
                 @Override

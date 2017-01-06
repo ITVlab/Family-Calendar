@@ -21,6 +21,7 @@ import java.util.List;
 
 import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.activities.MainLeanbackActivity;
+import news.androidtv.familycalendar.activities.SettingsActivity;
 import news.androidtv.familycalendar.utils.CalendarUtils;
 import news.androidtv.familycalendar.utils.SettingsConstants;
 
@@ -151,7 +152,8 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
                     holder.itemView.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            Toast.makeText(mContext, "No settings currently", Toast.LENGTH_SHORT).show();
+                            getContext().startActivity(
+                                    new Intent(getContext(), SettingsActivity.class));
                         }
                     });
                 }
