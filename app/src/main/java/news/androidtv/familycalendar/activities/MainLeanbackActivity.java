@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -42,6 +43,7 @@ import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.adapters.AbstractEventAdapter;
 import news.androidtv.familycalendar.adapters.AgendaViewAdapter;
 import news.androidtv.familycalendar.adapters.CalendarsAdapter;
+import news.androidtv.familycalendar.adapters.MonthViewAdapter;
 import news.androidtv.familycalendar.shims.Consumer;
 import news.androidtv.familycalendar.tasks.ListCalendarEventsMonthRequestTask;
 import news.androidtv.familycalendar.tasks.ListCalendarListRequestTask;
@@ -175,7 +177,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             findViewById(R.id.no_events).setVisibility(View.GONE);
             Collections.sort(mEventsList, new EventComparator());
             // Now put into layout. This layout may depend on user settings.
-            AgendaViewAdapter adapter = new AgendaViewAdapter(this, mEventsList,
+            AbstractEventAdapter adapter = new MonthViewAdapter(this, mEventsList,
                     new AbstractEventAdapter.EventHandler() {
                         @Override
                         public void onJumpToMonth(int offset) {
@@ -183,7 +185,8 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                         }
                     });
             RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
-            rv.setLayoutManager(new LinearLayoutManager(this));
+//            rv.setLayoutManager(new LinearLayoutManager(this));
+            rv.setLayoutManager(new GridLayoutManager(this, 7));
             rv.setAdapter(adapter);
             rv.setOnClickListener(new View.OnClickListener() {
                 @Override

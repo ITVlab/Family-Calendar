@@ -1,6 +1,7 @@
 package news.androidtv.familycalendar.adapters;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,8 +29,8 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
 
     private int mIndex;
 
-    public AgendaViewAdapter(Activity activity, List<Event> dataSource, EventHandler eventHandler) {
-        super(activity, dataSource, eventHandler);
+    public AgendaViewAdapter(Context context, List<Event> dataSource, EventHandler eventHandler) {
+        super(context, dataSource, eventHandler);
     }
 
     @Override

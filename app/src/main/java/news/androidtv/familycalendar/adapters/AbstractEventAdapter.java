@@ -46,9 +46,9 @@ public abstract class AbstractEventAdapter extends
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public AbstractEventAdapter(final Activity activity, List<Event> dataSource,
+    public AbstractEventAdapter(final Context context, List<Event> dataSource,
             EventHandler eventHandler) {
-        mContext = activity;
+        mContext = context;
         mDataList = dataSource;
         mInflator = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mSettingsManager = new SettingsManager(mContext);

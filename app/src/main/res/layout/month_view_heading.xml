@@ -1,0 +1,8 @@
+<LinearLayout android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:text="Sunday"
+        style="@style/calendar_dow"
+        android:id="@+id/heading"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+</LinearLayout>

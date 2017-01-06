@@ -70,6 +70,7 @@ public class CalendarsAdapter extends RecyclerView.Adapter<CalendarsAdapter.View
         }
         return mDataList.size();
     }
+
     @Override
     public int getItemViewType(int pos) {
         if (pos == 0) {

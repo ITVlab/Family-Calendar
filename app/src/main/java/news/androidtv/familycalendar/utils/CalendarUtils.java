@@ -44,6 +44,17 @@ public class CalendarUtils {
         return "";
     }
 
+    public static String getEventStartEndTimesAsString(Event event) {
+        if (event.getStart().getDateTime() != null && event.getEnd().getDateTime() != null) {
+            return new SimpleDateFormat("h:mma").format(
+                    new Date(event.getStart().getDateTime().getValue()))
+                    + " - " +
+                    new SimpleDateFormat("h:mma").format(
+                            new Date(event.getEnd().getDateTime().getValue()));
+        }
+        return "";
+    }
+
     public static boolean isCalendarSelected(CalendarListEntry calendar, Context context) {
         BetterSettingsManager settingsManager = new BetterSettingsManager(context);
         String key =  SettingsConstants.CALENDAR_SELECTED(calendar.getId());

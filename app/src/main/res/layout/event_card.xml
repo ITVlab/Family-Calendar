@@ -3,10 +3,11 @@
     android:orientation="vertical"
     android:background="@color/colorAccent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
     <TextView
         android:text="Dentist Appointment"
         android:textStyle="bold"
+        android:id="@+id/event_title"
         android:textSize="14sp"
         android:paddingStart="4dp"
         android:paddingEnd="4dp"
@@ -16,8 +17,9 @@
     <TextView
         android:layout_width="match_parent"
         android:text="2:30 - 3:30"
-        android:paddingStart="16sp"
-        android:paddingEnd="16sp"
+        android:id="@+id/event_time"
+        android:paddingStart="8sp"
+        android:paddingEnd="8sp"
         android:fontFamily="sans-serif-condensed"
         android:layout_height="wrap_content" />
 </LinearLayout>
