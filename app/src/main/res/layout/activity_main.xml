@@ -37,7 +37,6 @@
             android:text="NO EVENTS FOUND"
             android:textSize="24sp"
             android:id="@+id/no_events"
-            android:visibility="gone"
             android:layout_height="wrap_content" />
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler"

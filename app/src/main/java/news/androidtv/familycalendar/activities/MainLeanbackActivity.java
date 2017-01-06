@@ -213,7 +213,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
-        if (!mNavDrawerOpen) {
+        if (!mNavDrawerOpen && rv.getAdapter() != null) {
             ((AbstractEventAdapter) rv.getAdapter()).unfocusPreviousSelectedElement(rv, mFocusedMonth);
         }
         switch (keyCode) {
@@ -222,7 +222,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     focusedCalendar++;
                     if (focusedCalendar >= 0) {
                     }
-                } else {
+                } else if (rv.getAdapter() != null) {
                     ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 }
                 break;
@@ -232,7 +232,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     if (focusedCalendar < 0) {
                         focusedCalendar = 0;
                     }
-                } else {
+                } else if (rv.getAdapter() != null) {
                     ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 }
                 break;
@@ -262,7 +262,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     return true;
                 }
         }
-        if (!mNavDrawerOpen) {
+        if (!mNavDrawerOpen && rv.getAdapter() != null) {
             ((AbstractEventAdapter) rv.getAdapter()).focusNewSelectedElement(rv, mFocusedMonth);
         }
         Log.d(TAG, "Key press " + keyCode);

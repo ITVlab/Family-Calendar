@@ -24,7 +24,7 @@ android {
     buildToolsVersion "24.0.2"
     defaultConfig {
         applicationId "news.androidtv.familycalendar"
-        minSdkVersion 21
+        minSdkVersion 15
         targetSdkVersion 25
         versionCode 4
         versionName "1.0.3"

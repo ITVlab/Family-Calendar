@@ -55,10 +55,8 @@ public class MonthViewAdapter extends AbstractEventAdapter {
 
     public int getFirstDayOfMonth() {
         if (getCurentMonth() != null) {
-            Log.d(TAG, "Month  " + getCurentMonth().get(Calendar.MONTH));
             return getCurentMonth().get(Calendar.DAY_OF_WEEK) - 1;
         } else {
-            Log.w(TAG, "Month couldn't be found.");
             return 0;
         }
     }
