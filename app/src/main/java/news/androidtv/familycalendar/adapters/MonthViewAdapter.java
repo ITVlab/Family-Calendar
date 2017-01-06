@@ -48,7 +48,7 @@ public class MonthViewAdapter extends AbstractEventAdapter {
     @Override
     public int getItemCount() {
         if (getCurentMonth() != null) {
-            return getDaysInMonth() + 7 + getCurentMonth().get(Calendar.DAY_OF_WEEK_IN_MONTH);
+            return getDaysInMonth() + 7 + getCurentMonth().get(Calendar.DAY_OF_WEEK_IN_MONTH) - 1;
         } else {
             return getDaysInMonth() + 7;
         }
