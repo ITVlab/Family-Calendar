@@ -41,6 +41,7 @@ public class MonthViewAdapter extends AbstractEventAdapter {
 
     public MonthViewAdapter(Context context, List<Event> dataSource, EventHandler eventHandler) {
         super(context, dataSource, eventHandler);
+        mIndex = 6 + getFirstDayOfMonth();
     }
 
     @Override
@@ -97,13 +98,13 @@ public class MonthViewAdapter extends AbstractEventAdapter {
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_UP:
                 mIndex--;
-                if (mIndex < 6) {
+                if (mIndex < 6 + getFirstDayOfMonth()) {
                     getEventHandler().onJumpToMonth(-1);
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
                 mIndex++;
-                if (mIndex >= getDataList().size() + 7) {
+                if (mIndex >= getItemCount()) {
                     getEventHandler().onJumpToMonth(1);
                 }
                 break;
