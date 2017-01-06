@@ -54,8 +54,7 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
         }
         if (event.getColorId() != null) {
             Log.d(TAG, "Color: " + event.getColorId());
-            holder.layout.setBackgroundColor(getContext().getResources()
-                    .getColor(CalendarColorMap.getColors(event.getColorId()).background));
+            holder.layout.setBackgroundColor(CalendarColorMap.getColors(event.getColorId()).background);
         } else if (event.getStart().getDateTime() != null) {
             holder.layout.setBackgroundColor(getContext().getResources()
                     .getColor(MonthThemer.getPrimaryDarkColor(new Date(event.getStart()
@@ -111,9 +110,9 @@ public class AgendaViewAdapter extends AbstractEventAdapter {
         }
         // Unfocus current item
         int originalColor = getItemAt(mIndex).getColorId() == null ?
-                MonthThemer.getPrimaryDarkColor(currentMonth.getMonth()) :
+                getContext().getResources().getColor(MonthThemer.getPrimaryDarkColor(currentMonth.getMonth())) :
                 CalendarColorMap.getColors(getItemAt(mIndex).getColorId()).background;
-        recyclerView.findViewHolderForAdapterPosition(mIndex).itemView.setBackgroundColor(
-            getContext().getResources().getColor(originalColor));
+        recyclerView.findViewHolderForAdapterPosition(mIndex).itemView
+                .setBackgroundColor(originalColor);
     }
 }

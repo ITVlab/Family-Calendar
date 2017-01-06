@@ -164,18 +164,18 @@ public class MonthViewAdapter extends AbstractEventAdapter {
         switch (holder.type) {
             case TYPE_DATE:
                 Log.d(TAG, (getFirstDayOfMonth()) + "  " + (position - 6));
-                if (getFirstDayOfMonth() > position - 6) {
+                if (position - 6 - getFirstDayOfMonth() <= 0) {
                     // These are empty days
                     holder.itemView.setVisibility(View.INVISIBLE);
                     return;
                 }
-                ((TextView) holder.itemView.findViewById(R.id.date)).setText((position - 6) + "");
+                ((TextView) holder.itemView.findViewById(R.id.date)).setText((position - 6 - getFirstDayOfMonth()) + "");
                 LinearLayout layout = (LinearLayout) holder.layout.findViewById(R.id.list);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.removeAllViews();
                 for (Event event : getDataList()) {
                     if (event.getStart().getDateTime() != null &&
-                            new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6) {
+                            new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6 - getFirstDayOfMonth()) {
                         Log.d(TAG, event.getSummary() + " " + position);
                         layout.addView(getEventView(event));
                     }
@@ -215,7 +215,7 @@ public class MonthViewAdapter extends AbstractEventAdapter {
         List<Event> dayEvents = new ArrayList<>();
         for (Event event : getDataList()) {
             if (event.getStart().getDateTime() != null &&
-                    new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6) {
+                    new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6 - getFirstDayOfMonth()) {
                 dayEvents.add(event);
             }
         }
@@ -224,7 +224,10 @@ public class MonthViewAdapter extends AbstractEventAdapter {
         rv.setAdapter(new AgendaViewAdapter(getContext(), dayEvents, getEventHandler()));
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Month " + (position - 6))
+                .setTitle("Events on " +
+                        CalendarUtils.getMonth(getCurentMonth().get(Calendar.MONTH)) +
+                        " " +
+                        (position - 6 - getFirstDayOfMonth()))
                 .setView(rv)
                 .show();
     }

@@ -71,6 +71,12 @@ public class CalendarUtils {
         return days[dow];
     }
 
+    public static String getMonth(int dow) {
+        String[] days = new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+            "Sep", "Oct", "Nov", "Dec"};
+        return days[dow];
+    }
+
     private static class ColorRequestTask extends CalendarRequestTask<Colors> {
 
         public ColorRequestTask(GoogleAccountCredential credential) {
