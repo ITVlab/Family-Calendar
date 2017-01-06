@@ -102,6 +102,10 @@ public abstract class AbstractEventAdapter extends
         if (event == null) {
             return;
         }
+        displayPopup(event);
+    }
+
+    public void displayPopup(Event event) {
         String summary = new StringBuilder()
                 .append(event.getDescription() == null ? "" : event.getDescription() + "\n\n")
                 .append(CalendarUtils.getEventStartEndAsString(event))

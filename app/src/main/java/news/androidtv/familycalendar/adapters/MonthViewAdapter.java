@@ -1,6 +1,7 @@
 package news.androidtv.familycalendar.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
@@ -209,23 +210,33 @@ public class MonthViewAdapter extends AbstractEventAdapter {
     @Override
     public void displayPopup(int position) {
         // Display all events in that day
-        List<Event> dayEvents = new ArrayList<>();
+        final List<Event> dayEvents = new ArrayList<>();
         for (Event event : getDataList()) {
             if (event.getStart().getDateTime() != null &&
                     new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6 - getFirstDayOfMonth()) {
                 dayEvents.add(event);
             }
         }
-        RecyclerView rv = new RecyclerView(getContext());
-        rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        rv.setAdapter(new AgendaViewAdapter(getContext(), dayEvents, getEventHandler()));
+        String[] names = new String[dayEvents.size()];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = dayEvents.get(i).getSummary() + "\n" +
+                    CalendarUtils.getEventStartEndTimesAsString(dayEvents.get(i));
+        }
+//        RecyclerView rv = new RecyclerView(getContext());
+//        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+//        rv.setAdapter(new AgendaViewAdapter(getContext(), dayEvents, getEventHandler()));
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Events on " +
                         CalendarUtils.getMonth(getCurentMonth().get(Calendar.MONTH)) +
                         " " +
                         (position - 6 - getFirstDayOfMonth()))
-                .setView(rv)
+                .setItems(names, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        MonthViewAdapter.this.displayPopup(dayEvents.get(i));
+                    }
+                })
                 .show();
     }
 }
