@@ -162,7 +162,6 @@ public class MonthViewAdapter extends AbstractEventAdapter {
         super.onBindViewHolder(holder, position);
         switch (holder.type) {
             case TYPE_DATE:
-                Log.d(TAG, (getFirstDayOfMonth()) + "  " + (position - 6));
                 if (position - 6 - getFirstDayOfMonth() <= 0) {
                     // These are empty days
                     holder.itemView.setVisibility(View.INVISIBLE);
@@ -175,7 +174,6 @@ public class MonthViewAdapter extends AbstractEventAdapter {
                 for (Event event : getDataList()) {
                     if (event.getStart().getDateTime() != null &&
                             new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6 - getFirstDayOfMonth()) {
-                        Log.d(TAG, event.getSummary() + " " + position);
                         layout.addView(getEventView(event));
                     }
                 }
