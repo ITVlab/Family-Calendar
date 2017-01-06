@@ -45,16 +45,43 @@ public class MonthViewAdapter extends AbstractEventAdapter {
 
     @Override
     public int getItemCount() {
+        if (getCurentMonth() != null) {
+            return getDaysInMonth() + 7 + getCurentMonth().get(Calendar.DAY_OF_WEEK_IN_MONTH);
+        } else {
+            return getDaysInMonth() + 7;
+        }
+    }
+
+    public int getFirstDayOfMonth() {
+        if (getCurentMonth() != null) {
+            Log.d(TAG, "Month  " + getCurentMonth().get(Calendar.MONTH));
+            return getCurentMonth().get(Calendar.DAY_OF_WEEK) - 1;
+        } else {
+            Log.w(TAG, "Month couldn't be found.");
+            return 0;
+        }
+    }
+
+    private int getDaysInMonth() {
+        // Get current month.
+        // Assume it's in the event data.
+        if (getCurentMonth() != null) {
+            return getCurentMonth().getActualMaximum(Calendar.DAY_OF_MONTH);
+        }
+        return 31;
+    }
+
+    private GregorianCalendar getCurentMonth() {
         // Get current month.
         // Assume it's in the event data.
         Event middle = getDataList().get(getDataList().size() / 2);
-        if (middle.getStart().getDate() != null) {
-            Date date = new Date(middle.getStart().getDate().getValue());
+        if (middle.getStart().getDateTime() != null) {
+            Date date = new Date(middle.getStart().getDateTime().getValue());
             GregorianCalendar calendar =
-                    new GregorianCalendar(date.getYear(), date.getMonth(), date.getDay());
-            return calendar.getActualMaximum(Calendar.DAY_OF_MONTH) + 7;
+                    new GregorianCalendar(date.getYear() + 1900, date.getMonth(), 1);
+            return calendar;
         }
-        return 31 + 7; // As a precaution.
+        return null;
     }
 
     @Override
@@ -136,6 +163,12 @@ public class MonthViewAdapter extends AbstractEventAdapter {
         super.onBindViewHolder(holder, position);
         switch (holder.type) {
             case TYPE_DATE:
+                Log.d(TAG, (getFirstDayOfMonth()) + "  " + (position - 6));
+                if (getFirstDayOfMonth() > position - 6) {
+                    // These are empty days
+                    holder.itemView.setVisibility(View.INVISIBLE);
+                    return;
+                }
                 ((TextView) holder.itemView.findViewById(R.id.date)).setText((position - 6) + "");
                 LinearLayout layout = (LinearLayout) holder.layout.findViewById(R.id.list);
                 layout.setOrientation(LinearLayout.VERTICAL);
@@ -149,7 +182,8 @@ public class MonthViewAdapter extends AbstractEventAdapter {
                 }
                 break;
             case TYPE_DOW:
-                ((TextView) holder.itemView.findViewById(R.id.heading)).setText(position + " day");
+                ((TextView) holder.itemView.findViewById(R.id.heading))
+                        .setText(CalendarUtils.getDayOfWeek(position));
         }
     }
 
@@ -162,8 +196,7 @@ public class MonthViewAdapter extends AbstractEventAdapter {
 
         if (event.getColorId() != null) {
             Log.d(TAG, "Color: " + event.getColorId());
-            layout.setBackgroundColor(getContext().getResources()
-                    .getColor(CalendarColorMap.getColors(event.getColorId()).background));
+            layout.setBackgroundColor(CalendarColorMap.getColors(event.getColorId()).background);
         } else if (event.getStart().getDateTime() != null) {
             layout.setBackgroundColor(getContext().getResources()
                     .getColor(MonthThemer.getPrimaryDarkColor(new Date(event.getStart()

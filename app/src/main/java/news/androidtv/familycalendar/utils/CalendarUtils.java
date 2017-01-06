@@ -66,6 +66,11 @@ public class CalendarUtils {
         Log.d(TAG, String.valueOf(new ColorRequestTask(credential).getDataFromApi()));
     }
 
+    public static String getDayOfWeek(int dow) {
+        String[] days = new String[] {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        return days[dow];
+    }
+
     private static class ColorRequestTask extends CalendarRequestTask<Colors> {
 
         public ColorRequestTask(GoogleAccountCredential credential) {
