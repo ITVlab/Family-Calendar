@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import news.androidtv.familycalendar.utils.CalendarUtils;
+
 /**
  * This is an abstract adapter which shows events..
  */
@@ -101,15 +103,10 @@ public abstract class AbstractEventAdapter extends
             return;
         }
         String summary = new StringBuilder()
-                .append(event.getDescription())
-                .append("\n\n")
-                .append(event.getStart().toString())
-                .append(" - ")
-                .append(event.getEnd().toString())
-                .append("\n @")
-                .append(event.getLocation())
-                .append("\n Organized by ")
-                .append(event.getOrganizer())
+                .append(event.getDescription() == null ? "" : event.getDescription() + "\n\n")
+                .append(CalendarUtils.getEventStartEndAsString(event))
+                .append((event.getLocation() == null) ? "" : "\n@ " + event.getLocation())
+                .append(event.getOrganizer() == null ? "" : "\nOrganized by " + event.getOrganizer().getDisplayName())
                 .toString();
         Log.d(TAG, event.toString());
 
