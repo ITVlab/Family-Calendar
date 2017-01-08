@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -172,8 +173,14 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     public void redrawEvents() {
         // Sort all chronologically
         Log.d(TAG, "Draw " + mEventsList.size() + " items");
-        if (mEventsList.size() == 0) {
+        if (!hasEvents()) {
             findViewById(R.id.no_events).setVisibility(View.VISIBLE);
+            findViewById(R.id.no_events).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    displayError();
+                }
+            });
         } else {
             findViewById(R.id.no_events).setVisibility(View.GONE);
             Collections.sort(mEventsList, new EventComparator());
@@ -221,10 +228,15 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         }
     }
 
+    public boolean hasEvents()  {
+        //return false;
+       return mEventsList != null && mEventsList.size() > 0 && mCalendars != null && mCalendars.size() > 0;
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         RecyclerView rv = (RecyclerView) findViewById(R.id.recycler);
-        if (!mNavDrawerOpen && rv.getAdapter() != null) {
+        if (!mNavDrawerOpen && rv.getAdapter() != null && hasEvents()) {
             ((AbstractEventAdapter) rv.getAdapter()).unfocusPreviousSelectedElement(rv, mFocusedMonth);
         }
         switch (keyCode) {
@@ -233,7 +245,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     focusedCalendar++;
                     if (focusedCalendar >= 0) {
                     }
-                } else if (rv.getAdapter() != null) {
+                } else if (rv.getAdapter() != null && hasEvents()) {
                     ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 }
                 break;
@@ -243,7 +255,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     if (focusedCalendar < 0) {
                         focusedCalendar = 0;
                     }
-                } else if (rv.getAdapter() != null) {
+                } else if (rv.getAdapter() != null && hasEvents()) {
                     ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 }
                 break;
@@ -251,7 +263,11 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
             case KeyEvent.KEYCODE_A:
-                ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
+                if (hasEvents()) {
+                    ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
+                } else {
+                    displayError();
+                }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
                 openNavDrawer();
@@ -273,7 +289,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
                     return true;
                 }
         }
-        if (!mNavDrawerOpen && rv.getAdapter() != null) {
+        if (!mNavDrawerOpen && rv.getAdapter() != null && hasEvents()) {
             ((AbstractEventAdapter) rv.getAdapter()).focusNewSelectedElement(rv, mFocusedMonth);
         }
         Log.d(TAG, "Key press " + keyCode);
@@ -299,6 +315,13 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
     void jumpToMonth(int offset) {
         mFocusedMonth.setMonth(mFocusedMonth.getMonth() + offset);
         resyncEvents(mFocusedMonth);
+    }
+
+    void displayError() {
+        new AlertDialog.Builder(this)
+                .setTitle("No calendars or events found")
+                .setMessage("Family Calendar is an app that connects to your Google Calendar, but your Google Calendar appears to be empty.")
+                .show();
     }
 
     // Code copied from QuickStartActivity
