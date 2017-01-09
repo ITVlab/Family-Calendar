@@ -110,7 +110,8 @@ public abstract class AbstractEventAdapter extends
                 .append(event.getDescription() == null ? "" : event.getDescription() + "\n\n")
                 .append(CalendarUtils.getEventStartEndAsString(event))
                 .append((event.getLocation() == null) ? "" : "\n@ " + event.getLocation())
-                .append(event.getOrganizer() == null ? "" : "\nOrganized by " + event.getOrganizer().getDisplayName())
+                .append(event.getOrganizer() == null || event.getOrganizer().getDisplayName() == null
+                        ? "" : "\nOrganized by " + event.getOrganizer().getDisplayName())
                 .toString();
         Log.d(TAG, event.toString());
 

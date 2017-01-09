@@ -173,8 +173,9 @@ public class MonthViewAdapter extends AbstractEventAdapter {
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.removeAllViews();
                 for (Event event : getDataList()) {
-                    if (event.getStart().getDateTime() != null &&
-                            new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6 - getFirstDayOfMonth()) {
+                    if (event.getStart().getDateTime() != null
+                            && new Date(event.getStart().getDateTime().getValue()).getDate() == position - 6 - getFirstDayOfMonth()
+                            && layout.getChildCount() < 3) {
                         layout.addView(getEventView(event));
                     }
                 }
@@ -217,26 +218,30 @@ public class MonthViewAdapter extends AbstractEventAdapter {
                 dayEvents.add(event);
             }
         }
-        String[] names = new String[dayEvents.size()];
-        for (int i = 0; i < names.length; i++) {
-            names[i] = dayEvents.get(i).getSummary() + "\n" +
-                    CalendarUtils.getEventStartEndTimesAsString(dayEvents.get(i));
-        }
-//        RecyclerView rv = new RecyclerView(getContext());
-//        rv.setLayoutManager(new LinearLayoutManager(getContext()));
-//        rv.setAdapter(new AgendaViewAdapter(getContext(), dayEvents, getEventHandler()));
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("Events on " +
-                        CalendarUtils.getMonth(getCurentMonth().get(Calendar.MONTH)) +
-                        " " +
-                        (position - 6 - getFirstDayOfMonth()))
-                .setItems(names, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        MonthViewAdapter.this.displayPopup(dayEvents.get(i));
-                    }
-                })
-                .show();
+        if (dayEvents.size() > 1) {
+            // Allow the user to pick which event they want to see.
+            String[] names = new String[dayEvents.size()];
+            for (int i = 0; i < names.length; i++) {
+                names[i] = dayEvents.get(i).getSummary() + "\n" +
+                        CalendarUtils.getEventStartEndTimesAsString(dayEvents.get(i));
+            }
+
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Events on " +
+                            CalendarUtils.getMonth(getCurentMonth().get(Calendar.MONTH)) +
+                            " " +
+                            (position - 6 - getFirstDayOfMonth()))
+                    .setItems(names, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            MonthViewAdapter.this.displayPopup(dayEvents.get(i));
+                        }
+                    })
+                    .show();
+        } else {
+            // There's only one event that needs to be shown.
+            displayPopup(dayEvents.get(0));
+        }
     }
 }
