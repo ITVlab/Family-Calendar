@@ -172,7 +172,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
      */
     public void redrawEvents() {
         // Sort all chronologically
-        Log.d(TAG, "Draw " + mEventsList.size() + " items");
+//        Log.d(TAG, "Draw " + mEventsList.size() + " items");
         if (!hasEvents()) {
             findViewById(R.id.no_events).setVisibility(View.VISIBLE);
             findViewById(R.id.no_events).setOnClickListener(new View.OnClickListener() {
@@ -263,7 +263,9 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
             case KeyEvent.KEYCODE_A:
-                if (hasEvents()) {
+                if (mNavDrawerOpen) {
+                    return false;
+                } else if (hasEvents()) {
                     ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
                 } else {
                     displayError();
