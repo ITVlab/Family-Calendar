@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Family Calendar</string>
+    <string name="warn_no_events">No events found on this day.</string>
+    <string name="events_on_day">Events on %1$s %2$d</string>
+    <string name="popup_location">\n At %1$s</string>
+    <string name="popup_organizer">\nOrganized by %1$s</string>
+    <string name="title_none_found">No calendars or events found</string>
+    <string name="msg_none_found">Family Calendar is an app that connects to your Google Calendar, but your Google Calendar appears to be empty.</string>
+    <string name="no_network">No network connection available.</string>
+    <string name="msg_needs_google_account">This app needs to access your Google account (via Contacts).</string>
+    <string name="msg_requires_gps">This app requires Google Play Services. Please install Google Play Services on your device and relaunch this app.</string>
 </resources>

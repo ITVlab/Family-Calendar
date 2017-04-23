@@ -19,13 +19,13 @@ import java.util.Date;
 
 import news.androidtv.familycalendar.tasks.CalendarRequestTask;
 
-import static com.google.android.gms.internal.zzs.TAG;
-
 /**
  * Created by Nick on 10/28/2016.
  */
 
 public class CalendarUtils {
+    private static final String TAG = CalendarUtils.class.getSimpleName();
+
     private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
 
     public static GoogleAccountCredential getCredential(Context context) {

@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -13,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.api.services.calendar.model.Event;
 
@@ -77,6 +77,11 @@ public class MonthViewAdapter extends AbstractEventAdapter {
         Event middle = getDataList().get(getDataList().size() / 2);
         if (middle.getStart().getDateTime() != null) {
             Date date = new Date(middle.getStart().getDateTime().getValue());
+            GregorianCalendar calendar =
+                    new GregorianCalendar(date.getYear() + 1900, date.getMonth(), 1);
+            return calendar;
+        } else if (middle.getStart().getDate() != null) {
+            Date date = new Date(middle.getStart().getDate().getValue());
             GregorianCalendar calendar =
                     new GregorianCalendar(date.getYear() + 1900, date.getMonth(), 1);
             return calendar;
@@ -168,7 +173,7 @@ public class MonthViewAdapter extends AbstractEventAdapter {
                     holder.itemView.setVisibility(View.INVISIBLE);
                     return;
                 }
-                ((TextView) holder.itemView.findViewById(R.id.date)).setText((position - 6 - getFirstDayOfMonth()) + "");
+                ((TextView) holder.itemView.findViewById(R.id.date)).setText(String.valueOf(position - 6 - getFirstDayOfMonth()));
                 LinearLayout layout = (LinearLayout) holder.layout.findViewById(R.id.list);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.removeAllViews();
@@ -228,10 +233,9 @@ public class MonthViewAdapter extends AbstractEventAdapter {
             }
 
             new AlertDialog.Builder(getContext())
-                    .setTitle("Events on " +
-                            CalendarUtils.getMonth(getCurentMonth().get(Calendar.MONTH)) +
-                            " " +
-                            (position - 6 - getFirstDayOfMonth()))
+                    .setTitle(getContext().getString(R.string.events_on_day,
+                            CalendarUtils.getMonth(getCurentMonth().get(Calendar.MONTH)),
+                            (position - 6 - getFirstDayOfMonth())))
                     .setItems(names, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -239,9 +243,11 @@ public class MonthViewAdapter extends AbstractEventAdapter {
                         }
                     })
                     .show();
-        } else {
+        } else if (dayEvents.size() == 1) {
             // There's only one event that needs to be shown.
             displayPopup(dayEvents.get(0));
+        } else {
+            Toast.makeText(getContext(), R.string.warn_no_events, Toast.LENGTH_SHORT).show();
         }
     }
 }

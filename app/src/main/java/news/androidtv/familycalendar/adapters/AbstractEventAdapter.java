@@ -1,13 +1,11 @@
 package news.androidtv.familycalendar.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.felkertech.settingsmanager.SettingsManager;
@@ -17,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.utils.CalendarUtils;
 
 /**
@@ -109,9 +108,9 @@ public abstract class AbstractEventAdapter extends
         String summary = new StringBuilder()
                 .append(event.getDescription() == null ? "" : event.getDescription() + "\n\n")
                 .append(CalendarUtils.getEventStartEndAsString(event))
-                .append((event.getLocation() == null) ? "" : "\n@ " + event.getLocation())
+                .append((event.getLocation() == null) ? "" : getContext().getString(R.string.popup_location, event.getLocation()))
                 .append(event.getOrganizer() == null || event.getOrganizer().getDisplayName() == null
-                        ? "" : "\nOrganized by " + event.getOrganizer().getDisplayName())
+                        ? "" : getContext().getString(R.string.popup_organizer, event.getOrganizer().getDisplayName()))
                 .toString();
         Log.d(TAG, event.toString());
 

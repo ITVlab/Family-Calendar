@@ -3,7 +3,7 @@ package news.androidtv.familycalendar.model;
 import java.util.HashMap;
 
 /**
- * Created by Nick on 1/4/2017. A xollection of {@link CalendarColor} objects.
+ * Created by Nick on 1/4/2017. A collection of {@link CalendarColor} objects.
  *
  *
  */

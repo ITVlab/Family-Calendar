@@ -32,14 +32,13 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 
-import io.fabric.sdk.android.Fabric;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import io.fabric.sdk.android.Fabric;
 import news.androidtv.familycalendar.R;
 import news.androidtv.familycalendar.adapters.AbstractEventAdapter;
 import news.androidtv.familycalendar.adapters.AgendaViewAdapter;
@@ -243,7 +242,8 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             case KeyEvent.KEYCODE_DPAD_DOWN:
                 if (mNavDrawerOpen) {
                     focusedCalendar++;
-                    if (focusedCalendar >= 0) {
+                    if (focusedCalendar >= mCalendars.size()) {
+                        focusedCalendar = mCalendars.size();
                     }
                 } else if (rv.getAdapter() != null && hasEvents()) {
                     ((AbstractEventAdapter) rv.getAdapter()).handleKeyEvent(keyCode);
@@ -321,8 +321,8 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
 
     void displayError() {
         new AlertDialog.Builder(this)
-                .setTitle("No calendars or events found")
-                .setMessage("Family Calendar is an app that connects to your Google Calendar, but your Google Calendar appears to be empty.")
+                .setTitle(R.string.title_none_found)
+                .setMessage(R.string.msg_none_found)
                 .show();
     }
 
@@ -339,8 +339,8 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
-        } else if (! isDeviceOnline()) {
-            Toast.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
+        } else if (!isDeviceOnline()) {
+            Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
         } else {
             resyncEvents(mFocusedMonth);
         }
@@ -352,7 +352,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!isDeviceOnline()) {
-            Toast.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
         } else {
             return true;
         }
@@ -386,7 +386,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
             // Request the GET_ACCOUNTS permission via a user dialog
             EasyPermissions.requestPermissions(
                     this,
-                    "This app needs to access your Google account (via Contacts).",
+                    getString(R.string.msg_needs_google_account),
                     REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
         }
@@ -409,8 +409,7 @@ public class MainLeanbackActivity extends Activity implements EasyPermissions.Pe
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    Toast.makeText(this, "This app requires Google Play Services. Please install " +
-                            "Google Play Services on your device and relaunch this app.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.msg_requires_gps), Toast.LENGTH_SHORT).show();
                 } else {
                     getResultsFromApi();
                 }
